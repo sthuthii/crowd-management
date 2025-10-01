@@ -1,11 +1,10 @@
-# backend/app/routers/crowd_prediction.py
 from fastapi import APIRouter, HTTPException
-# Import both service functions
+
 from ..services.crowd_prediction import get_crowd_forecast, get_daily_forecast_chart_data
 
 router = APIRouter()
 
-# --- NEW ENDPOINT FOR THE DAILY FORECAST CHART ---
+
 @router.get("/forecast/daily")
 def get_daily_forecast(date: str, special_day: str):
     """
@@ -26,7 +25,7 @@ def get_daily_forecast(date: str, special_day: str):
     }
 
 
-# --- ORIGINAL ENDPOINT FOR SINGLE PREDICTIONS (OPTIONAL) ---
+
 @router.get("/forecast")
 def get_single_forecast(date: str, time_slot: str, special_day: str):
     """

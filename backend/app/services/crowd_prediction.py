@@ -1,10 +1,10 @@
-# backend/app/services/crowd_prediction.py
+
 import pandas as pd
 import lightgbm as lgb
 import joblib
 from pathlib import Path
 
-# Define file paths
+
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "crowd_forecaster.pkl"
 DATA_PATH = BASE_DIR / "historical_data.csv"
@@ -65,18 +65,18 @@ def get_crowd_forecast(date_str: str, time_slot: str, special_day: str) -> int:
         print(f"Error during forecast: {e}")
         return -1
 
-# --- NEW FUNCTION FOR DAILY CHART DATA ---
+
 def get_daily_forecast_chart_data(date_str: str, special_day: str) -> dict:
     """
     Generates a full day's forecast data by predicting for each time slot.
     """
-    # These are the time slots from your dataset
+    
     time_slots = ['5-8 AM', '8-11 AM', '11-2 PM', '2-5 PM', '5-8 PM']
     
     chart_labels = []
     chart_data_points = []
 
-    # Loop through each time slot and get a prediction
+    
     for slot in time_slots:
         predicted_level = get_crowd_forecast(
             date_str=date_str,
@@ -84,7 +84,7 @@ def get_daily_forecast_chart_data(date_str: str, special_day: str) -> dict:
             special_day=special_day
         )
         
-        # Only add valid predictions to the chart data
+        
         if predicted_level >= 0:
             chart_labels.append(slot)
             chart_data_points.append(predicted_level)
