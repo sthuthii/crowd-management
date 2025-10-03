@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+<a href="/accessibility">Accessibility Navigation</a>
 
 export default function Navbar() {
   return (
