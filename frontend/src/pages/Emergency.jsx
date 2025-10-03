@@ -1,32 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { createEmergency, getActiveEmergencies, updateEmergency } from '../services/api';
+import { createEmergency, getActiveEmergencies } from '../services/api';
 
 const Emergency = () => {
     const [emergencies, setEmergencies] = useState([]);
-    const [listLoading, setListLoading] = useState(true);
     const [sosLoading, setSosLoading] = useState(false);
     const [error, setError] = useState('');
     const [alertSent, setAlertSent] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [myAlertId, setMyAlertId] = useState(null);
 
-    const fetchEmergencies = async (showLoader = false) => {
-        if (showLoader) setListLoading(true);
-        setError('');
-        try {
-            const response = await getActiveEmergencies();
-            setEmergencies(response.data);
-        } catch (err) {
-            setError('Failed to fetch emergencies.');
-            console.error(err);
-        } finally {
-            if (showLoader) setListLoading(false);
-        }
-    };
-
+    // We still fetch all emergencies in the background to get status updates for our own alert
     useEffect(() => {
-        fetchEmergencies(true);
-        const interval = setInterval(() => fetchEmergencies(false), 10000);
+        const fetchEmergencies = async () => {
+            try {
+                const response = await getActiveEmergencies();
+                setEmergencies(response.data);
+            } catch (err) {
+                console.error("Failed to fetch emergencies for status check", err);
+            }
+        };
+
+        fetchEmergencies();
+        const interval = setInterval(fetchEmergencies, 10000);
         return () => clearInterval(interval);
     }, []);
 
@@ -52,7 +47,8 @@ const Emergency = () => {
             const response = await createEmergency(mockEmergencyData);
             setAlertSent(true);
             setMyAlertId(response.data.id);
-            fetchEmergencies(true);
+            // Manually add the new alert to the list for an instant UI update
+            setEmergencies(prev => [response.data, ...prev]);
         } catch (err) {
             setError('Failed to send SOS. Please try again.');
             console.error(err);
@@ -61,19 +57,10 @@ const Emergency = () => {
         }
     };
 
-    const handleUpdateStatus = async (id, newStatus) => {
-        try {
-            await updateEmergency(id, { status: newStatus });
-            fetchEmergencies(false);
-        } catch (err) {
-            setError('Failed to update status.');
-        }
-    };
-    
     const myAlert = emergencies.find(e => e.id === myAlertId);
 
     return (
-        <div className="container mt-4">
+        <>
             {showModal && (
                  <div className="modal-overlay">
                     <div className="modal-content text-center">
@@ -87,7 +74,7 @@ const Emergency = () => {
                 </div>
             )}
 
-            <div className="card text-center p-4 mb-5 shadow-lg">
+            <div className="card text-center p-4 shadow-lg">
                 <h2 className="text-danger">Emergency SOS</h2>
                 <p>If you are in distress, press the button below for immediate assistance.</p>
                 <button
@@ -109,29 +96,7 @@ const Emergency = () => {
                 
                 {error && <div className="alert alert-danger mt-3">{error}</div>}
             </div>
-
-            {/* THIS IS THE SECTION THAT WAS LIKELY MISSING */}
-            <div className="card">
-                 <div className="card-header"><h3>Active Emergency Alerts</h3></div>
-                <div className="card-body">
-                    {listLoading ? (
-                        <p>Loading alerts...</p>
-                    ) : (
-                        <>
-                            {emergencies.length === 0 && <p>No active emergencies.</p>}
-                            <ul className="list-group">
-                                {emergencies.map(emergency => (
-                                    <li key={emergency.id} className="list-group-item d-flex justify-content-between align-items-center">
-                                        <div><strong>ID: {emergency.id}</strong> ({emergency.emergency_type})<br /><small>User: {emergency.user_id} at {new Date(emergency.timestamp).toLocaleTimeString()}</small><br/><small>Location: [{emergency.latitude}, {emergency.longitude}]</small></div>
-                                        <div><span className={`badge bg-warning me-3`}>{emergency.status.toUpperCase()}</span><div className="btn-group"><button className="btn btn-primary btn-sm" onClick={() => handleUpdateStatus(emergency.id, 'dispatched')}>Dispatch</button><button className="btn btn-success btn-sm" onClick={() => handleUpdateStatus(emergency.id, 'resolved')}>Resolve</button></div></div>
-                                    </li>
-                                ))}
-                            </ul>
-                        </>
-                    )}
-                </div>
-            </div>
-        </div>
+        </>
     );
 };
 

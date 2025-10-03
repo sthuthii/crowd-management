@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
 import { createAlert } from '../services/api';
+import EmergencyDashboard from '../components/EmergencyDashboard'; // <-- Import the dashboard
 
 const Admin = () => {
+    return (
+        <div>
+            <h2 className="mb-4">Admin Control Panel</h2>
+            <AlertsForm />
+            <EmergencyDashboard />
+        </div>
+    );
+};
+
+// We'll keep the form as a sub-component for good organization
+const AlertsForm = () => {
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('info');
     const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +27,7 @@ const Admin = () => {
         try {
             await createAlert({ message, severity });
             setFeedback({ type: 'success', message: 'Alert sent successfully!' });
-            setMessage(''); // Clear message on success
+            setMessage('');
         } catch (error) {
             setFeedback({ type: 'danger', message: 'Failed to send alert. Please try again.' });
             console.error(error);
@@ -27,10 +39,9 @@ const Admin = () => {
     return (
         <div className="card">
             <div className="card-header">
-                <h3>Admin Control Panel</h3>
+                <h4>Send a New Broadcast Alert</h4>
             </div>
             <div className="card-body">
-                <h4>Send a New Broadcast Alert</h4>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label htmlFor="message" className="form-label">Alert Message</label>
