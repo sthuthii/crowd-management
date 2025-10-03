@@ -1,3 +1,5 @@
+// frontend/src/services/api.js
+
 import axios from 'axios';
 
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
@@ -17,3 +19,6 @@ export const updateEmergency = (id, updateData) => apiClient.put(`/emergency/${i
 // --- Lost and Found Service ---
 export const getLostAndFoundItems = () => apiClient.get('/lost-and-found/');
 export const createLostAndFoundItem = (itemData) => apiClient.post('/lost-and-found/', itemData);
+
+// This is the line that was missing
+export const updateLostAndFoundItem = (id, updateData) => apiClient.put(`/lost-and-found/${id}`, updateData);

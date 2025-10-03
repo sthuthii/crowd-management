@@ -5,49 +5,53 @@ import { createEmergency, getActiveEmergencies, updateEmergency } from '../servi
 
 const Emergency = () => {
     const [emergencies, setEmergencies] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [listLoading, setListLoading] = useState(true); // For the list
+    const [sosLoading, setSosLoading] = useState(false); // For the button
     const [error, setError] = useState('');
     const [alertSent, setAlertSent] = useState(false);
 
     // Fetch active emergencies for the admin dashboard
     const fetchEmergencies = async () => {
+        setListLoading(true);
+        setError('');
         try {
             const response = await getActiveEmergencies();
             setEmergencies(response.data);
         } catch (err) {
             setError('Failed to fetch emergencies.');
             console.error(err);
+        } finally {
+            setListLoading(false);
         }
     };
 
     useEffect(() => {
         fetchEmergencies();
-        // Poll for new emergencies every 10 seconds
         const interval = setInterval(fetchEmergencies, 10000);
         return () => clearInterval(interval);
     }, []);
 
     // Handler for the devotee's SOS button
     const handleSosClick = async () => {
-        setLoading(true);
+        setSosLoading(true);
         setAlertSent(false);
+        setError('');
         const mockEmergencyData = {
-            user_id: `devotee_${Date.now()}`, // Using a mock user/device ID
-            latitude: 13.139,  // Mock location data
-            longitude: 77.594,
+            user_id: `devotee_${Date.now()}`,
+            latitude: 20.9517, // Mock Somnath location
+            longitude: 70.3979,
             emergency_type: "Medical"
         };
 
         try {
             await createEmergency(mockEmergencyData);
             setAlertSent(true);
-            // Refresh the list instantly for the admin view
-            fetchEmergencies();
+            fetchEmergencies(); // Refresh the list
         } catch (err) {
             setError('Failed to send SOS. Please try again.');
             console.error(err);
         } finally {
-            setLoading(false);
+            setSosLoading(false);
         }
     };
 
@@ -55,7 +59,6 @@ const Emergency = () => {
     const handleUpdateStatus = async (id, newStatus) => {
         try {
             await updateEmergency(id, { status: newStatus });
-            // Refresh list to reflect the change
             fetchEmergencies();
         } catch (err) {
             setError('Failed to update status.');
@@ -72,12 +75,13 @@ const Emergency = () => {
                 <button
                     className="btn btn-danger btn-lg p-4 rounded-circle"
                     onClick={handleSosClick}
-                    disabled={loading}
+                    disabled={sosLoading}
                     style={{ fontSize: '2rem', width: '150px', height: '150px', margin: 'auto' }}
                 >
-                    {loading ? 'SENDING...' : 'SOS'}
+                    {sosLoading ? 'SENDING...' : 'SOS'}
                 </button>
                 {alertSent && <div className="alert alert-success mt-3">Help is on the way!</div>}
+                {error && <div className="alert alert-danger mt-3">{error}</div>}
             </div>
 
             {/* Section 2: Admin Dashboard View */}
@@ -86,9 +90,10 @@ const Emergency = () => {
                     <h3>Active Emergency Alerts</h3>
                 </div>
                 <div className="card-body">
-                    {error && <div className="alert alert-danger">{error}</div>}
+                    {listLoading && <p>Loading alerts...</p>}
+                    {!listLoading && emergencies.length === 0 && <p>No active emergencies.</p>}
                     <ul className="list-group">
-                        {emergencies.length > 0 ? emergencies.map(emergency => (
+                        {emergencies.map(emergency => (
                             <li key={emergency.id} className="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <strong>ID: {emergency.id}</strong> ({emergency.emergency_type})
@@ -105,9 +110,7 @@ const Emergency = () => {
                                     </div>
                                 </div>
                             </li>
-                        )) : (
-                            <li className="list-group-item">No active emergencies.</li>
-                        )}
+                        ))}
                     </ul>
                 </div>
             </div>
