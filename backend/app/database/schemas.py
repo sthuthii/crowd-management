@@ -30,8 +30,8 @@ class LostAndFoundItem(LostAndFoundItemBase):
 # --- Emergency Schemas ---
 class EmergencyBase(BaseModel):
     user_id: str
-    latitude: float
-    longitude: float
+    latitude: Optional[float] = None  # <-- CHANGE HERE
+    longitude: Optional[float] = None # <-- CHANGE HERE
     emergency_type: Optional[str] = "General"
     notes: Optional[str] = None
 
