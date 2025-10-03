@@ -1,0 +1,78 @@
+/* ===========================
+   Navbar
+=========================== */
+nav {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  background-color: #0b5cff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  border-radius: 0 0 12px 12px;
+}
+
+nav a {
+  margin-right: 20px;
+  color: white;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   Dashboard Sections
+=========================== */
+section h2 {
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+}
+
+/* ===========================
+   Tables
+=========================== */
+table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td {
+  transition: 0.2s;
+}
+
+tr:hover td {
+  background-color: #e8f0fe;
+}
+
+/* ===========================
+   Forms / Dropdowns
+=========================== */
+select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-right: 12px;
+}
+
+/* Card-style stats */
+.stat-card {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  min-width: 180px;
+}
+
+.stat-card h3 {
+  font-size: 1.2rem;
+  color: #0b5cff;
+  margin-bottom: 10px;
+}
+
+.stat-count {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+}
