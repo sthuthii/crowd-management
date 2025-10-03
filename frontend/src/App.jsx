@@ -8,6 +8,7 @@ import Navbar from './components/Navbar';
 import AlertsDisplay from './components/AlertsDisplay';
 import Emergency from './pages/Emergency';
 import LostAndFound from './pages/LostAndFound';
+import Admin from './pages/Admin';
 import './App.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Emergency />} />
             <Route path="/lost-and-found" element={<LostAndFound />} />
+            <Route path="/admin" element={<Admin />}/>
           </Routes>
         </main>
       </div>

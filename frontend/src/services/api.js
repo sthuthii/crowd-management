@@ -25,3 +25,6 @@ export const updateLostAndFoundItem = (id, updateData) => apiClient.put(`/lost-a
 // ... (at the end of the file)
 
 export const getActiveAlerts = () => apiClient.get('/alerts/');
+// ... (at the end of the file)
+
+export const createAlert = (alertData) => apiClient.post('/alerts/', alertData);

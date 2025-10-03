@@ -10,12 +10,20 @@ const Navbar = () => {
         <Link className="navbar-brand" to="/">TirthaSaathi</Link>
         <div className="collapse navbar-collapse">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <Link className="nav-link" to="/">Emergency SOS</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/lost-and-found">Lost & Found</Link>
-            </li>
+            
+            // ... (add a new Link to the list)
+<ul className="navbar-nav me-auto mb-2 mb-lg-0">
+    <li className="nav-item">
+        <Link className="nav-link" to="/">Emergency SOS</Link>
+    </li>
+    <li className="nav-item">
+        <Link className="nav-link" to="/lost-and-found">Lost & Found</Link>
+    </li>
+    <li className="nav-item">
+        <Link className="nav-link" to="/admin">Admin</Link> {/* <-- Add this new link */}
+    </li>
+</ul>
+// ...
           </ul>
         </div>
       </div>
