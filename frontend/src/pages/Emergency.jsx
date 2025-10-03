@@ -1,9 +1,5 @@
-// frontend/src/pages/Emergency.jsx
-
 import React, { useState, useEffect } from 'react';
 import { createEmergency, getActiveEmergencies, updateEmergency } from '../services/api';
-// I'm assuming you have the modal CSS in your main App.css file now
-// import './Emergency.css'; 
 
 const Emergency = () => {
     const [emergencies, setEmergencies] = useState([]);
@@ -12,14 +8,10 @@ const Emergency = () => {
     const [error, setError] = useState('');
     const [alertSent, setAlertSent] = useState(false);
     const [showModal, setShowModal] = useState(false);
-    const [lastSentType, setLastSentType] = useState(''); // State to hold last emergency type
+    const [myAlertId, setMyAlertId] = useState(null);
 
-    // --- MODIFIED fetchEmergencies FUNCTION ---
-    // It now accepts an argument to decide whether to show the loader
     const fetchEmergencies = async (showLoader = false) => {
-        if (showLoader) {
-            setListLoading(true);
-        }
+        if (showLoader) setListLoading(true);
         setError('');
         try {
             const response = await getActiveEmergencies();
@@ -28,26 +20,20 @@ const Emergency = () => {
             setError('Failed to fetch emergencies.');
             console.error(err);
         } finally {
-            if (showLoader) {
-                setListLoading(false);
-            }
+            if (showLoader) setListLoading(false);
         }
     };
 
-    // --- MODIFIED useEffect HOOK ---
     useEffect(() => {
-        // Show loader on the very first load
         fetchEmergencies(true);
-        
-        // Subsequent polls will not show the loader
         const interval = setInterval(() => fetchEmergencies(false), 10000);
-        
         return () => clearInterval(interval);
     }, []);
 
     const handleSosClick = () => {
         setShowModal(true);
         setAlertSent(false);
+        setMyAlertId(null);
     };
 
     const handleEmergencySelect = async (emergencyType) => {
@@ -63,10 +49,9 @@ const Emergency = () => {
         };
 
         try {
-            await createEmergency(mockEmergencyData);
+            const response = await createEmergency(mockEmergencyData);
             setAlertSent(true);
-            setLastSentType(emergencyType); // Save the type for the success message
-            // Show loader on this manual refresh
+            setMyAlertId(response.data.id);
             fetchEmergencies(true);
         } catch (err) {
             setError('Failed to send SOS. Please try again.');
@@ -79,16 +64,18 @@ const Emergency = () => {
     const handleUpdateStatus = async (id, newStatus) => {
         try {
             await updateEmergency(id, { status: newStatus });
-            fetchEmergencies(false); // No need to show loader for this
+            fetchEmergencies(false);
         } catch (err) {
             setError('Failed to update status.');
         }
     };
+    
+    const myAlert = emergencies.find(e => e.id === myAlertId);
 
     return (
         <div className="container mt-4">
             {showModal && (
-                <div className="modal-overlay">
+                 <div className="modal-overlay">
                     <div className="modal-content text-center">
                         <h4>Select Emergency Type</h4>
                         <button className="btn btn-warning btn-lg w-100 mb-2" onClick={() => handleEmergencySelect('Medical')}>Medical</button>
@@ -111,12 +98,21 @@ const Emergency = () => {
                 >
                     {sosLoading ? 'SENDING...' : 'SOS'}
                 </button>
-                {alertSent && <div className="alert alert-success mt-3">Help is on the way! Your alert for **{lastSentType}** has been sent.</div>}
+                
+                {alertSent && myAlert && (
+                    <div className="alert alert-success mt-3">
+                        Help is on the way! Your alert for **{myAlert.emergency_type}** has been sent.
+                        <hr/>
+                        <strong>Current Status:</strong> {myAlert.status.toUpperCase()}
+                    </div>
+                )}
+                
                 {error && <div className="alert alert-danger mt-3">{error}</div>}
             </div>
 
+            {/* THIS IS THE SECTION THAT WAS LIKELY MISSING */}
             <div className="card">
-                <div className="card-header"><h3>Active Emergency Alerts</h3></div>
+                 <div className="card-header"><h3>Active Emergency Alerts</h3></div>
                 <div className="card-body">
                     {listLoading ? (
                         <p>Loading alerts...</p>
