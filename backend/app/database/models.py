@@ -29,3 +29,14 @@ class Emergency(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     status = Column(String, default="reported") # reported, dispatched, resolved
     notes = Column(String, nullable=True)
+
+ # ... (at the end of the file)
+
+# NEW: Add the Alert model
+class Alert(Base):
+    __tablename__ = "alerts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    message = Column(String, nullable=False)
+    severity = Column(String, default="info")  # e.g., 'info', 'warning', 'critical'
+    timestamp = Column(DateTime(timezone=True), server_default=func.now())   

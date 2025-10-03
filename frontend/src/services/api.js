@@ -22,3 +22,6 @@ export const createLostAndFoundItem = (itemData) => apiClient.post('/lost-and-fo
 
 // This is the line that was missing
 export const updateLostAndFoundItem = (id, updateData) => apiClient.put(`/lost-and-found/${id}`, updateData);
+// ... (at the end of the file)
+
+export const getActiveAlerts = () => apiClient.get('/alerts/');

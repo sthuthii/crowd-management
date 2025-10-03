@@ -49,3 +49,20 @@ class Emergency(EmergencyBase):
 
     class Config:
         from_attributes = True # <-- AND CHANGE HERE
+
+  # ... (at the end of the file)
+
+# --- Alert Schemas (NEW) ---
+class AlertBase(BaseModel):
+    message: str
+    severity: str = "info"
+
+class AlertCreate(AlertBase):
+    pass
+
+class Alert(AlertBase):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True      

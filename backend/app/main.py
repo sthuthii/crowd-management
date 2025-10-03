@@ -5,7 +5,7 @@ from .database import models
 from .database.db import engine
 from fastapi.middleware.cors import CORSMiddleware
 # Edit this line below
-from .routers import emergency , lost_and_found 
+from .routers import emergency , lost_and_found,alerts 
 
 # Create all database tables
 models.Base.metadata.create_all(bind=engine)
@@ -30,7 +30,7 @@ app.add_middleware(
 # Include API routers
 app.include_router(emergency.router)
 app.include_router(lost_and_found.router) # Comment this out for now
-
+app.include_router(alerts.router)
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Crowd Management System API"}
