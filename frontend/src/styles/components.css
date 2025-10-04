@@ -185,3 +185,8 @@ select {
   background-color: #222;
   color: #fff;
 }
+.page-container { display: flex; gap: 1rem; }
+.menu-container { flex: 1; }
+.map-container { flex: 2; }
+.high-contrast { background-color: #000; color: #fff; }
+.accessibility-container { /* map container styling */ }
