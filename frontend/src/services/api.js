@@ -44,3 +44,7 @@ export const loginUser = (username, password) => {
 
 // You will also need a createUser function for a registration page later
 export const createUser = (userData) => apiClient.post('/users/', userData);
+
+// evacuation
+
+export const getNearbyExits = (lat, lon) => apiClient.get(`/evacuation/exits-near-me?lat=${lat}&lon=${lon}`);

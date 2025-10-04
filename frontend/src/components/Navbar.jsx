@@ -28,6 +28,9 @@ const Navbar = () => {
                 <li className="nav-item">
                   <Link className="nav-link" to="/lost-and-found">Lost & Found</Link>
                 </li>
+                <li className="nav-item">
+    <Link className="nav-link" to="/evacuation">Find Exits</Link> {/* <-- Add Link */}
+</li>
               </>
             )}
             {/* Show this link only FOR admins */}
@@ -50,6 +53,7 @@ const Navbar = () => {
               </li>
             )}
           </ul>
+
         </div>
       </div>
     </nav>

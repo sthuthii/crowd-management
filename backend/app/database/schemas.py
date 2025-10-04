@@ -94,3 +94,12 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: Optional[str] = None
+
+
+
+# --- Exit Schema (NEW) ---
+class Exit(BaseModel):
+    name: str
+
+    class Config:
+        from_attributes = True    

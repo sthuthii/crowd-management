@@ -12,6 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Admin from './pages/Admin';
 import './App.css';
 import LoginPage from './pages/LoginPage';
+import EvacuationPage from './pages/EvacuationPage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/lost-and-found" element={<LostAndFound />} />
             
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/evacuation" element={<EvacuationPage />} /> 
             <Route 
               path="/admin" 
               element={
