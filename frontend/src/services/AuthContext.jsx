@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
             const response = await loginUser(username, password);
             const accessToken = response.data.access_token;
             setToken(accessToken);
-            setUser({ username }); // In a real app, you'd decode the token to get user details
+            setUser({ username: username, role: 'admin' }); 
             localStorage.setItem('token', accessToken);
             return true;
         } catch (error) {
