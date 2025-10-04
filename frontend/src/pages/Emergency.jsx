@@ -31,23 +31,25 @@ const Emergency = () => {
         setMyAlertId(null);
     };
 
-    const handleEmergencySelect = async (emergencyType) => {
-        setSosLoading(true);
-        setError('');
-        setShowModal(false);
+   
+const handleEmergencySelect = async (emergencyType) => {
+    setSosLoading(true);
+    setError('');
+    setShowModal(false);
 
-        const mockEmergencyData = {
+    // This function will be called after getting the location
+    const sendSos = async (latitude, longitude) => {
+        const emergencyData = {
             user_id: `devotee_${Date.now()}`,
-            latitude: 20.9517,
-            longitude: 70.3979,
+            latitude: latitude,
+            longitude: longitude,
             emergency_type: emergencyType
         };
 
         try {
-            const response = await createEmergency(mockEmergencyData);
+            const response = await createEmergency(emergencyData);
             setAlertSent(true);
             setMyAlertId(response.data.id);
-            // Manually add the new alert to the list for an instant UI update
             setEmergencies(prev => [response.data, ...prev]);
         } catch (err) {
             setError('Failed to send SOS. Please try again.');
@@ -56,6 +58,28 @@ const Emergency = () => {
             setSosLoading(false);
         }
     };
+
+    // --- NEW: Use the Geolocation API ---
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                // Success: We got the real location
+                sendSos(position.coords.latitude, position.coords.longitude);
+            },
+            () => {
+                // Error/Denied: Fallback to the mock location
+                setError("Could not get location. Sending with default coordinates.");
+                sendSos(20.9517, 70.3979); // Default mock location
+            }
+        );
+    } else {
+        // Geolocation not supported by browser
+        setError("Geolocation is not supported by your browser. Sending with default coordinates.");
+        sendSos(20.9517, 70.3979); // Default mock location
+    }
+};
+
+
 
     const myAlert = emergencies.find(e => e.id === myAlertId);
 

@@ -1,13 +1,79 @@
-import React, { useState } from 'react';
-import { createAlert } from '../services/api';
+import React, { useState, useEffect } from 'react';
+
+import { getActiveEmergencies, updateEmergency, createAlert } from '../services/api';
+import EmergencyMap from '../components/EmergencyMap';
+
 import EmergencyDashboard from '../components/EmergencyDashboard'; // <-- Import the dashboard
 
+
+const EmergencyList = ({ emergencies, onUpdateStatus }) => {
+    return (
+        <ul className="list-group">
+            {emergencies.length === 0 && <li className="list-group-item">No active emergencies.</li>}
+            {emergencies.map(emergency => (
+                <li key={emergency.id} className="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{emergency.emergency_type}</strong> (ID: {emergency.id})<br />
+                        <small>User: {emergency.user_id} @ {new Date(emergency.timestamp).toLocaleTimeString()}</small>
+                    </div>
+                    <div>
+                        <span className="badge bg-warning me-3">{emergency.status.toUpperCase()}</span>
+                        <div className="btn-group">
+                            <button className="btn btn-primary btn-sm" onClick={() => onUpdateStatus(emergency.id, 'dispatched')}>Dispatch</button>
+                            <button className="btn btn-success btn-sm" onClick={() => onUpdateStatus(emergency.id, 'resolved')}>Resolve</button>
+                        </div>
+                    </div>
+                </li>
+            ))}
+        </ul>
+    );
+};
+
+
 const Admin = () => {
+    // --- State is now managed here in the parent component ---
+    const [emergencies, setEmergencies] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchEmergencies = async () => {
+        try {
+            const response = await getActiveEmergencies();
+            setEmergencies(response.data);
+        } catch (error) {
+            console.error("Failed to fetch emergencies", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEmergencies();
+        const interval = setInterval(fetchEmergencies, 10000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleUpdateStatus = async (id, newStatus) => {
+        try {
+            await updateEmergency(id, { status: newStatus });
+            fetchEmergencies(); // Manually refresh after update
+        } catch (err) {
+            console.error('Failed to update status.');
+        }
+    };
+
     return (
         <div>
             <h2 className="mb-4">Admin Control Panel</h2>
             <AlertsForm />
-            <EmergencyDashboard />
+            <EmergencyMap emergencies={emergencies} /> {/* <-- Add the Map component */}
+            <div className="card mt-4">
+                <div className="card-header">
+                    <h3>Active Emergency Alerts (List)</h3>
+                </div>
+                <div className="card-body">
+                    {isLoading ? <p>Loading alerts...</p> : <EmergencyList emergencies={emergencies} onUpdateStatus={handleUpdateStatus} />}
+                </div>
+            </div>
         </div>
     );
 };

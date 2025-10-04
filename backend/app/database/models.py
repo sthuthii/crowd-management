@@ -39,4 +39,13 @@ class Alert(Base):
     id = Column(Integer, primary_key=True, index=True)
     message = Column(String, nullable=False)
     severity = Column(String, default="info")  # e.g., 'info', 'warning', 'critical'
-    timestamp = Column(DateTime(timezone=True), server_default=func.now())   
+    timestamp = Column(DateTime(timezone=True), server_default=func.now())
+    
+#Authentication and authorization
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    role = Column(String, default="admin") # e.g., 'admin', 'security'       

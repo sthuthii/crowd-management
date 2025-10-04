@@ -1,8 +1,9 @@
 # backend/app/database/schemas.py
 
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 from datetime import datetime
 from typing import Optional
+
 
 # --- Lost and Found Schemas ---
 class LostAndFoundItemBase(BaseModel):
@@ -65,4 +66,31 @@ class Alert(AlertBase):
     timestamp: datetime
 
     class Config:
-        from_attributes = True      
+        from_attributes = True 
+
+
+# ... Authentication and authorisation
+
+# --- User Schemas (NEW) ---
+class UserBase(BaseModel):
+    username: str
+
+class UserCreate(UserBase):
+    password: str = Field(..., min_length=8, max_length=72)
+    role: str = "admin"
+
+class User(UserBase):
+    id: int
+    role: str
+
+    class Config:
+        from_attributes = True
+
+#authentication&authorization in react app
+# --- Token Schemas (NEW) ---
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
