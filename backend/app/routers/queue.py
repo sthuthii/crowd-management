@@ -1,62 +1,32 @@
-from fastapi import APIRouter
-from typing import Dict
-import random
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from ..database import schemas, db, models
+from ..services import queue as queue_service
+from ..dependencies import get_current_user
 
 router = APIRouter()
 
-# Hardcoded queue lengths: normal + priority
-queues = {
-    "Temple Gate": {"normal": 12, "priority": 2},
-    "Cafeteria": {"normal": 5, "priority": 1},
-    "Restroom A": {"normal": 3, "priority": 0},
-    "Restroom B": {"normal": 2, "priority": 1},
-}
+@router.get("/queues", response_model=list[schemas.Queue])
+def get_live_queues():
+    """
+    Provides a live list of all major queues and their current wait times.
+    """
+    # Calls the service to get the data
+    return queue_service.get_all_queues_logic()
 
-@router.get("/queues")
-async def get_queues():
+@router.post("/passes", response_model=schemas.DigitalPass)
+def book_darshan_pass(pass_data: schemas.PassCreate, db: Session = Depends(db.get_db), current_user: models.User = Depends(get_current_user)):
     """
-    Returns current queue lengths.
-    Randomize normal queue only to simulate changes.
+    Allows a logged-in pilgrim to book a new digital darshan pass.
     """
-    updated_queues = {}
-    for loc, q in queues.items():
-        normal = max(0, q["normal"] + random.randint(-2, 3))
-        updated_queues[loc] = {"normal": normal, "priority": q["priority"]}
-    return updated_queues
+    # Check for existing pass
+    existing_pass = db.query(models.DigitalPass).filter(models.DigitalPass.user_id == current_user.id).first()
+    if existing_pass:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already has an active pass.")
 
-@router.post("/join-queue/{location}")
-async def join_queue(location: str, priority: bool = False):
-    """
-    Add a person to a queue at a location.
-    Priority=True → priority queue
-    """
-    if location not in queues:
-        return {"error": "Invalid location"}
+    queue_map = {"q_general": "General Darshan", "q_vip": "VIP Pass Holders"}
+    queue_name = queue_map.get(pass_data.queue_id, "Unknown Queue")
     
-    if priority:
-        queues[location]["priority"] += 1
-        qtype = "priority"
-    else:
-        queues[location]["normal"] += 1
-        qtype = "normal"
-
-    return {"message": f"You joined the {qtype} queue at {location}", "current_queue": queues[location]}
-
-@router.post("/leave-queue/{location}")
-async def leave_queue(location: str):
-    """
-    Serve next person in the queue. Priority first.
-    """
-    if location not in queues:
-        return {"error": "Invalid location"}
-    
-    if queues[location]["priority"] > 0:
-        queues[location]["priority"] -= 1
-        served = "priority"
-    elif queues[location]["normal"] > 0:
-        queues[location]["normal"] -= 1
-        served = "normal"
-    else:
-        return {"message": "Queue is empty", "current_queue": queues[location]}
-
-    return {"message": f"Served one {served} visitor at {location}", "current_queue": queues[location]}
+    # Calls the service to create the pass in the database
+    return queue_service.create_pass_logic(db=db, current_user=current_user, pass_data=pass_data, queue_name=queue_name)

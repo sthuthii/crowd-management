@@ -9,3 +9,7 @@ torch
 torchvision
 Pillow
 python-dotenv
+sqlalchemy
+fastapi-cors
+passlib[bcrypt]
+python-jose[cryptography]

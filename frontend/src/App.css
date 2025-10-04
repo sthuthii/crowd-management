@@ -1,42 +1,102 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #f0f2f5; /* Light grey background for better contrast */
+  margin: 0;
+  padding: 24px;
+  color: #333;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.container {
+  max-width: 1200px; /* Wider container for the two-column layout */
+  margin: auto;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+h1 {
+  color: #222;
+  border-bottom: 2px solid #FF6B1A; /* Orange accent for the main title */
+  padding-bottom: 10px;
+  margin-bottom: 30px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+h2 {
+  color: #222;
+  margin-top: 0;
 }
 
+/* --- Two-Column Layout Grid --- */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Create two equal columns */
+  gap: 24px; /* Space between the columns */
+}
+
+/* --- Universal Card Styling --- */
 .card {
-  padding: 2em;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
 }
 
-.read-the-docs {
-  color: #888;
+/* --- Queue List Styling --- */
+.queues-list {
+  list-style: none;
+  padding: 0;
+}
+
+.queues-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.queues-list li:last-child {
+  border-bottom: none;
+}
+
+.status-High { color: #dc3545; font-weight: bold; }
+.status-Medium { color: #ffc107; font-weight: bold; }
+.status-Low { color: #28a745; font-weight: bold; }
+
+/* --- Booking Form Styling --- */
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.booking-form input, .booking-form select, .booking-form button {
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff; /* Force white background */
+  color: #333;
+  color-scheme: light; /* Force light mode styles */
+}
+
+.booking-form button {
+  background-color: #FF6B1A;
+  color: white;
+  cursor: pointer;
+  border: none;
+  font-weight: bold;
+}
+
+.booking-form button:hover {
+  background-color: #e05a10;
+}
+
+/* --- Booked Pass Details Styling --- */
+.pass-details {
+  margin-top: 24px;
+  background: #fff8f2; /* Light orange background */
+  border: 1px solid #FF6B1A;
+}
+
+.pass-details h3 {
+  margin-top: 0;
+  color: #e05a10;
 }
