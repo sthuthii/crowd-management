@@ -9,7 +9,7 @@ SECRET_KEY = "440cdc22372b494a90ece5c0a50cd090e5b2e843d20fb5d0828bfad7baf996f9"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 # --- Password Helpers ---
 def verify_password(plain_password: str, hashed_password: str) -> bool:
