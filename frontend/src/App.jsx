@@ -1,25 +1,7 @@
-
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./styles/global.css";
-import "./styles/components.css";
-
-import Navbar from "./components/Navbar";
-
-// Pages
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
-import Prediction from "./pages/Prediction";
-import Traffic from "./pages/Traffic";
-import Queue from "./pages/Queue";
-import Accessibility from "./pages/Accessibility";
-import Emergency from "./pages/Emergency";
-
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
 import { getQueues, bookPass, registerUser, loginUser } from './services/api';
 import './App.css';
-
 
 // --- Login Page Component ---
 const LoginPage = ({ onLoginSuccess }) => {
@@ -41,14 +23,16 @@ const LoginPage = ({ onLoginSuccess }) => {
     };
 
     return (
-        <div className="form-container">
-            <form onSubmit={handleSubmit}>
-                <h2>Login to Darshan Sahaay</h2>
-                <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
-                <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-                <button type="submit">Login</button>
-                <p>Don't have an account? <Link to="/register">Register here</Link></p>
-            </form>
+        <div className="auth-container">
+            <div className="form-card">
+                <form onSubmit={handleSubmit}>
+                    <h2>Login</h2>
+                    <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
+                    <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+                    <button type="submit">Login</button>
+                    <p>Don't have an account? <Link to="/register">Register here</Link></p>
+                </form>
+            </div>
         </div>
     );
 };
@@ -72,14 +56,16 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="form-container">
-            <form onSubmit={handleSubmit}>
-                <h2>Create Account</h2>
-                <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
-                <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-                <button type="submit">Register</button>
-                <p>Already have an account? <Link to="/login">Login here</Link></p>
-            </form>
+        <div className="auth-container">
+            <div className="form-card">
+                <form onSubmit={handleSubmit}>
+                    <h2>Create Account</h2>
+                    <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
+                    <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+                    <button type="submit">Register</button>
+                    <p>Already have an account? <Link to="/login">Login here</Link></p>
+                </form>
+            </div>
         </div>
     );
 };
@@ -89,101 +75,73 @@ const QueuePage = ({ onLogout }) => {
     const [queues, setQueues] = useState([]);
     const [bookedPass, setBookedPass] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [formState, setFormState] = useState({
-        queue_id: 'q_general',
-        number_of_people: 1,
-    });
+    const [formState, setFormState] = useState({ queue_id: 'q_general', number_of_people: 1 });
 
     useEffect(() => {
         const fetchQueues = async () => {
+            setIsLoading(true);
             try {
                 const response = await getQueues();
                 setQueues(response.data);
             } catch (error) {
                 console.error("Failed to fetch queues:", error);
+                if (error.response?.status === 401) onLogout();
             } finally {
                 setIsLoading(false);
             }
         };
         fetchQueues();
-    }, []);
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormState(prevState => ({ ...prevState, [name]: value }));
-    };
+    }, [onLogout]);
 
     const handleBooking = async (e) => {
         e.preventDefault();
         try {
-            // The user_id is now handled by the backend from the auth token
             const passData = { ...formState, number_of_people: parseInt(formState.number_of_people) };
             const response = await bookPass(passData);
             setBookedPass(response.data);
             alert('Pass booked successfully!');
         } catch (error) {
             alert('Booking failed! ' + (error.response?.data?.detail || 'You may already have a booking.'));
-            console.error('Booking failed:', error);
         }
     };
 
-    if (isLoading) return <div className="container"><h1>Loading...</h1></div>;
+    if (isLoading) return <div className="app-container"><h1>Loading...</h1></div>;
 
     return (
-        <div className="container">
-            <button onClick={onLogout} className="logout-button">Logout</button>
-            <h1>Darshan Sahaay - Smart Queue & Ticketing</h1>
-            <div className="main-layout">
-                <div className="card">
-                    <h2>Live Queue Status</h2>
-                    <ul className="queues-list">{queues.map(q => <li key={q.id}><span>{q.name}</span><span className={`status-${q.status}`}><strong>{q.wait_time_minutes} mins</strong></span></li>)}</ul>
+        <div className="app-container">
+            <nav className="navbar">
+                <h1 className="navbar-title">Darshan Sahaay</h1>
+                <button onClick={onLogout} className="logout-button">Logout</button>
+            </nav>
+            <main className="main-content">
+                <div className="main-layout">
+                    <div className="card">
+                        <h2>Live Queue Status</h2>
+                        <ul className="queues-list">{queues.map(q => <li key={q.id}><span>{q.name}</span><span className={`status-${q.status}`}><strong>{q.wait_time_minutes} mins</strong></span></li>)}</ul>
+                    </div>
+                    <div className="card">
+                        <form className="booking-form" onSubmit={handleBooking}>
+                            <h2>Book a Digital Pass</h2>
+                            <select name="queue_id" value={formState.queue_id} onChange={e => setFormState({...formState, queue_id: e.target.value})}>{queues.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}</select>
+                            <input name="number_of_people" type="number" value={formState.number_of_people} onChange={e => setFormState({...formState, number_of_people: e.target.value})} min="1" required />
+                            <button type="submit">Book My Pass</button>
+                        </form>
+                    </div>
                 </div>
-                <div className="card">
-                    <form className="booking-form" onSubmit={handleBooking}>
-                        <h2>Book a Digital Pass</h2>
-                        <select name="queue_id" value={formState.queue_id} onChange={handleInputChange}>{queues.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}</select>
-                        <input name="number_of_people" type="number" value={formState.number_of_people} onChange={handleInputChange} min="1" required />
-                        <button type="submit">Book My Pass</button>
-                    </form>
-                </div>
-            </div>
-            {bookedPass && (
-                <div className="pass-details card">
-                    <h3>Your Pass is Booked!</h3>
-                    <p><strong>Pass ID:</strong> {bookedPass.pass_id}</p>
-                    <p><strong>Queue:</strong> {bookedPass.queue_name}</p>
-                    <img src={bookedPass.qr_code_url} alt="QR Code" />
-                </div>
-            )}
+                {bookedPass && (
+                    <div className="pass-details card">
+                        <h3>Your Pass is Booked!</h3>
+                        <p><strong>Pass ID:</strong> {bookedPass.pass_id}</p>
+                        <img src={bookedPass.qr_code_url} alt="QR Code" />
+                    </div>
+                )}
+            </main>
         </div>
     );
 };
 
-
-// --- Main App Component ---
+// --- Main App Component (Handles Routing) ---
 function App() {
-
-  return (
-    <Router>
-      <Navbar />
-      <div className="main-content">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/prediction" element={<Prediction />} />
-          <Route path="/traffic" element={<Traffic />} />
-          <Route path="/queue" element={<Queue />} />
-          <Route path="/accessibility" element={<Accessibility />} />
-          <Route path="/emergency" element={<Emergency />} />
-        </Routes>
-      </div>
-    </Router>
-  );
-}
-
-
-export default App;
-{
     const [token, setToken] = useState(localStorage.getItem('token'));
     const navigate = useNavigate();
 
@@ -217,4 +175,3 @@ function AppWrapper() {
 }
 
 export default AppWrapper;
-

@@ -1,36 +1,120 @@
+/* In src/App.css */
+
+/* --- Global Styles --- */
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #f0f2f5; /* Light grey background for better contrast */
+  background-color: #f0f2f5; /* Light grey background to make white cards pop */
   margin: 0;
-  padding: 24px;
   color: #333;
 }
 
-.container {
-  max-width: 1200px; /* Wider container for the two-column layout */
-  margin: auto;
+/* --- Login & Register Page Styling --- */
+.auth-container {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-h1 {
+.form-card {
+  background: #ffffff;
+  padding: 2rem 3rem;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.form-card h2 {
   color: #222;
-  border-bottom: 2px solid #FF6B1A; /* Orange accent for the main title */
-  padding-bottom: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 1.5rem;
 }
 
-h2 {
-  color: #222;
-  margin-top: 0;
+.form-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-/* --- Two-Column Layout Grid --- */
+.form-card input {
+  padding: 12px 15px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+.form-card input:focus {
+  outline: 2px solid #FF6B1A; /* Orange focus color */
+  border-color: transparent;
+}
+
+.form-card button {
+  background-color: #FF6B1A; /* Your orange color */
+  color: white;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.form-card button:hover {
+  background-color: #e05a10; /* Darker orange for hover */
+}
+
+.form-card p {
+  margin-top: 1.5rem;
+  font-size: 14px;
+}
+
+.form-card a {
+  color: #FF6B1A; /* Orange for links */
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* --- Main Application Layout (After Login) --- */
+.app-container {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 0 24px;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 10px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  margin-bottom: 24px;
+}
+
+.navbar-title { color: #222; font-size: 1.5em; }
+
+.logout-button {
+  background-color: #FF6B1A;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 .main-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Create two equal columns */
-  gap: 24px; /* Space between the columns */
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  gap: 24px;
 }
 
-/* --- Universal Card Styling --- */
 .card {
   background: #ffffff;
   padding: 24px;
@@ -39,64 +123,29 @@ h2 {
   border: 1px solid #eee;
 }
 
-/* --- Queue List Styling --- */
-.queues-list {
-  list-style: none;
-  padding: 0;
-}
-
-.queues-list li {
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.queues-list li:last-child {
-  border-bottom: none;
-}
-
+.card h2 { margin-top: 0; }
+.queues-list { list-style: none; padding: 0; }
+.queues-list li { padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
 .status-High { color: #dc3545; font-weight: bold; }
-.status-Medium { color: #ffc107; font-weight: bold; }
 .status-Low { color: #28a745; font-weight: bold; }
+.booking-form { display: flex; flex-direction: column; gap: 16px; }
+.booking-form input, .booking-form select, .booking-form button { padding: 12px; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; color-scheme: light; }
+.booking-form button { background-color: #FF6B1A; color: white; cursor: pointer; border: none; font-weight: bold; }
+.pass-details { margin-top: 24px; background: #fff8f2; border: 1px solid #FF6B1A; }
+.pass-details h3 { color: #e05a10; }
 
-/* --- Booking Form Styling --- */
-.booking-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+/* --- Responsive Design for Mobile --- */
+/* --- ADD THIS CODE FOR RESPONSIVENESS --- */
+@media (max-width: 768px) {
+  .main-layout {
+    grid-template-columns: 1fr; /* Stack columns on top of each other on mobile */
+  }
+  
+  body {
+    padding: 12px;
+  }
 
-.booking-form input, .booking-form select, .booking-form button {
-  padding: 12px;
-  font-size: 16px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #fff; /* Force white background */
-  color: #333;
-  color-scheme: light; /* Force light mode styles */
-}
-
-.booking-form button {
-  background-color: #FF6B1A;
-  color: white;
-  cursor: pointer;
-  border: none;
-  font-weight: bold;
-}
-
-.booking-form button:hover {
-  background-color: #e05a10;
-}
-
-/* --- Booked Pass Details Styling --- */
-.pass-details {
-  margin-top: 24px;
-  background: #fff8f2; /* Light orange background */
-  border: 1px solid #FF6B1A;
-}
-
-.pass-details h3 {
-  margin-top: 0;
-  color: #e05a10;
+  .app-container {
+    padding: 0 12px;
+  }
 }
