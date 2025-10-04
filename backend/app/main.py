@@ -11,12 +11,13 @@ from app.routers import (
     queue
 )
 
+# ---------------- FastAPI App ----------------
 app = FastAPI(title="Crowd Management System")
 
-# ---------------- Middleware ----------------
+# ---------------- CORS Middleware ----------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all origins
+    allow_origins=["*"],  # Replace "*" with your frontend URL for security
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
