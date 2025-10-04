@@ -32,6 +32,9 @@ const Accessibility = forwardRef(({ textSize, highContrast, language = "en-US" }
   const [slotAlert, setSlotAlert] = useState(null);
   const slotAlertTimerRef = useRef(null);
 
+  // For tracking previous slot statuses
+  const prevSlotsRef = useRef([]);
+
   // Fetch routes and priority routes
   useEffect(() => {
     let mounted = true;
@@ -99,7 +102,7 @@ const Accessibility = forwardRef(({ textSize, highContrast, language = "en-US" }
     return () => clearInterval(interval);
   }, [activeRoute]);
 
-  // Audio guidance
+  // Audio guidance for active route
   useEffect(() => {
     if (!activeRoute) return;
     const interval = setInterval(() => {
@@ -127,19 +130,28 @@ const Accessibility = forwardRef(({ textSize, highContrast, language = "en-US" }
     return () => { mounted = false; clearInterval(interval); };
   }, []);
 
-  // Announce slot updates
+  // Announce slot updates always
   useEffect(() => {
     if (!slots || slots.length === 0) return;
-    slots.forEach((slot) => {
-      speak(`Darshan slot for ${slot.name} is ${slot.status}`, language);
+
+    slots.forEach((slot, idx) => {
+      const prevStatus = prevSlotsRef.current[idx]?.status;
+      if (!prevStatus || prevStatus !== slot.status) {
+        speak(`Darshan slot for ${slot.name} is ${slot.status}`, language);
+        audioRef.current?.play();
+      }
     });
 
+    // Show latest slot alert visually
     const latest = slots[slots.length - 1];
     if (latest) {
       setSlotAlert(latest);
       if (slotAlertTimerRef.current) clearTimeout(slotAlertTimerRef.current);
       slotAlertTimerRef.current = setTimeout(() => setSlotAlert(null), 7000);
     }
+
+    // Save current slots to prevSlotsRef for next comparison
+    prevSlotsRef.current = slots;
 
     return () => {
       if (slotAlertTimerRef.current) clearTimeout(slotAlertTimerRef.current);
