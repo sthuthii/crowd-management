@@ -28,3 +28,16 @@ export const getActiveAlerts = () => apiClient.get('/alerts/');
 // ... (at the end of the file)
 
 export const createAlert = (alertData) => apiClient.post('/alerts/', alertData);
+
+// admin login
+
+export const loginUser = (username, password) => {
+    // Manually create the form-encoded string
+    const body = `grant_type=password&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+
+    return apiClient.post('/token', body, {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    });
+};

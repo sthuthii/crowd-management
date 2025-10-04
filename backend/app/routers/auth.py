@@ -6,7 +6,7 @@ from datetime import timedelta
 from ..database import schemas, models, db
 from .. import security
 
-router = APIRouter(tags=["Authentication"])
+router = APIRouter(prefix="/api", tags=["Authentication"])
 
 @router.post("/token", response_model=schemas.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(db.get_db)):

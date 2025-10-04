@@ -10,6 +10,7 @@ import Emergency from './pages/Emergency';
 import LostAndFound from './pages/LostAndFound';
 import Admin from './pages/Admin';
 import './App.css';
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/" element={<Emergency />} />
             <Route path="/lost-and-found" element={<LostAndFound />} />
             <Route path="/admin" element={<Admin />}/>
+            <Route path="/login" element={<LoginPage />} />
           </Routes>
         </main>
       </div>
