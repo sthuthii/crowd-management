@@ -6,6 +6,7 @@ from typing import List
 
 from ..database import schemas, models
 from ..database.db import get_db
+from .. import security 
 
 router = APIRouter(
     prefix="/api/emergency",
@@ -48,6 +49,7 @@ def update_emergency_status(
     emergency_id: int,
     emergency_update: schemas.EmergencyUpdate,
     db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(security.get_current_user)
 ):
     """
     Update the status or notes of an emergency (for admins).

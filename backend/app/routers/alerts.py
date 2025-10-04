@@ -4,8 +4,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 
-from ..database import schemas, models
-from ..database.db import get_db
+from ..database import schemas, models,db
+from ..database.db import get_db 
+from .. import security
 
 router = APIRouter(
     prefix="/api/alerts",
@@ -13,7 +14,11 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=schemas.Alert)
-def create_alert(alert: schemas.AlertCreate, db: Session = Depends(get_db)):
+def create_alert(
+    alert: schemas.AlertCreate, 
+    db: Session = Depends(db.get_db),
+    current_user: schemas.User = Depends(security.get_current_user) # <-- Protect this route
+):
     """
     Create a new broadcast alert (for admins).
     """
