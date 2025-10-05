@@ -1,3 +1,4 @@
+#backend/feature-traffic
 import asyncio
 import random
 from datetime import datetime
@@ -87,3 +88,10 @@ async def run_traffic_simulation():
         print(f"Simulator: Data updated. Parking is {parking_occupancy_percent:.0%} full.")
         
         await asyncio.sleep(5)
+        
+def estimate_traffic(payload: dict):
+    # very simple stub - in production you'd run a model here
+    location = payload.get("location", "unknown")
+    # return dummy values
+    return {"location": location, "density": 0.4, "avg_speed": 25.0}
+

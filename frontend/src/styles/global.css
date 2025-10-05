@@ -1,0 +1,189 @@
+/* ===========================
+   Reset & Global Styles
+=========================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===========================
+   Navbar
+=========================== */
+/* Navbar container */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #0b5cff;
+  padding: 12px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 100;
+  display: flex;
+  justify-content: center; /* centers inner div */
+}
+
+/* Links wrapper */
+.nav-links {
+  display: flex;
+  justify-content: center; /* center the links inside */
+  gap: 20px; /* spacing between links */
+}
+
+/* Link styles */
+.nav-links a {
+  color: white;
+  font-weight: 500;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+
+
+/* ===========================
+   Main Content Container
+=========================== */
+.main-content {
+  margin-top: 80px; /* offset for fixed navbar */
+  width: 90%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===========================
+   Dashboard / Sections
+=========================== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===========================
+   Headings
+=========================== */
+h1, h2, h3 {
+  color: #0b5cff;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* ===========================
+   Tables
+=========================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+  background-color: #0b5cff;
+  color: white;
+  font-weight: 500;
+}
+
+tr:hover td {
+  background-color: #f0f4ff;
+}
+
+/* ===========================
+   Buttons
+=========================== */
+button {
+  background-color: #0b5cff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 2px;
+  transition: 0.3s;
+  font-weight: 500;
+}
+
+button:hover {
+  background-color: #0945a0;
+}
+
+/* ===========================
+   Forms / Dropdowns
+=========================== */
+select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-right: 12px;
+}
+
+/* ===========================
+   Charts
+=========================== */
+canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Page container - center content */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* center horizontally */
+  justify-content: flex-start;
+  padding: 80px 20px 20px; /* top padding avoids navbar overlap */
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Page title styling */
+.page-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #0b5cff;
+}
+
+/* Traffic section */
+.traffic-section {
+  width: 90%;
+  max-width: 1200px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
