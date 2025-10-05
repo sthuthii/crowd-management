@@ -1,7 +1,7 @@
 import React from "react";
 import useQueues from "../hooks/useQueues";
 
-export default function QueueManagement({ language }) {
+export default function QueueDashboard({ language }) {
   const { queues, joinQueue, serveNext, loading, error } = useQueues(language);
 
   if (loading)
@@ -16,14 +16,19 @@ export default function QueueManagement({ language }) {
     );
 
   return (
-    <div className="queue-management p-4">
+    <div className="queue-dashboard p-4">
+      <h2 style={{ fontSize: "1.8em", marginBottom: "1rem" }}>
+        Queue Management & Stats
+      </h2>
+
+      {/* Queue Controls */}
       {Object.entries(queues).map(([location, counts]) => (
         <div
           key={location}
           className="mb-4 p-4 border rounded shadow-sm"
           style={{ fontSize: 18 }}
         >
-          <h2 className="font-semibold mb-2">{location}</h2>
+          <h3 className="font-semibold mb-2">{location}</h3>
           <div className="flex gap-4 mb-3">
             <div>Normal Queue: {counts.normal}</div>
             <div>Priority Queue: {counts.priority}</div>
@@ -88,6 +93,36 @@ export default function QueueManagement({ language }) {
           </div>
         </div>
       ))}
+
+      {/* Live Queue Stats Summary */}
+      <div className="mt-8 border-t pt-4">
+        <h3 style={{ fontSize: "1.4em", marginBottom: "0.5rem" }}>Queue Summary</h3>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: 16,
+            textAlign: "center",
+          }}
+        >
+          <thead>
+            <tr style={{ backgroundColor: "#f0f0f0" }}>
+              <th style={{ padding: 8, border: "1px solid #ddd" }}>Location</th>
+              <th style={{ padding: 8, border: "1px solid #ddd" }}>Normal Queue</th>
+              <th style={{ padding: 8, border: "1px solid #ddd" }}>Priority Queue</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(queues).map(([location, counts]) => (
+              <tr key={location}>
+                <td style={{ padding: 8, border: "1px solid #ddd" }}>{location}</td>
+                <td style={{ padding: 8, border: "1px solid #ddd" }}>{counts.normal}</td>
+                <td style={{ padding: 8, border: "1px solid #ddd" }}>{counts.priority}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

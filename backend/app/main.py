@@ -15,10 +15,9 @@ from app.routers import (
 app = FastAPI(title="Crowd Management System")
 
 # ---------------- CORS Middleware ----------------
-# Allows your React frontend to access this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace "*" with your frontend URL for security
+    allow_origins=["*"],  # TODO: Replace "*" with your frontend URL later
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,3 +31,8 @@ app.include_router(accessibility.router, prefix="/accessibility", tags=["Accessi
 app.include_router(crowd_prediction.router)
 app.include_router(traffic.router, prefix="/traffic", tags=["Traffic"])
 app.include_router(queue.router, prefix="/queue", tags=["Queue"])
+
+# ---------------- Health Check ----------------
+@app.get("/")
+def root():
+    return {"status": "Backend running successfully 🚀"}

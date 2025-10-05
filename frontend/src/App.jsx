@@ -11,9 +11,10 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Prediction from "./pages/Prediction";
 import Traffic from "./pages/Traffic";
-import Queue from "./pages/Queue";
 import Accessibility from "./pages/Accessibility";
 import Emergency from "./pages/Emergency";
+// New Queue Dashboard
+import QueueDashboard from "./components/QueueDashboard";
 
 import { speak as ttsSpeak } from "./services/tts";
 
@@ -52,8 +53,8 @@ function App() {
           <Route path="/prediction" element={<Prediction />} />
           <Route path="/traffic" element={<Traffic />} />
 
-          {/* Queue Page with Management + Stats */}
-          <Route path="/queue" element={<Queue />} />
+          {/* Queue Page replaced with unified Dashboard */}
+          <Route path="/queue" element={<QueueDashboard language="en-US" />} />
 
           {/* Accessibility Page */}
           <Route

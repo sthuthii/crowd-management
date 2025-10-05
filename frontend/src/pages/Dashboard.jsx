@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import QueueStats from "../components/QueueStats";
 import TrafficFlow from "../components/TrafficFlow";
 import CrowdStats from "../components/CrowdStats";
 import api from "../services/api";
@@ -7,8 +6,24 @@ import api from "../services/api";
 export default function Dashboard() {
   const [accessibility, setAccessibility] = useState({});
   const [emergency, setEmergency] = useState({});
+  const [queueData, setQueueData] = useState({});
+  const [queueError, setQueueError] = useState("");
 
-  // Fetch accessibility info
+  // ✅ Fetch queue data
+  const fetchQueue = async () => {
+    try {
+      const resp = await fetch("http://127.0.0.1:8000/queue");
+      if (!resp.ok) throw new Error("Failed to fetch queue data");
+      const data = await resp.json();
+      setQueueData(data);
+      setQueueError("");
+    } catch (err) {
+      console.error(err);
+      setQueueError("Failed to fetch queue data. Please check backend.");
+    }
+  };
+
+  // ✅ Fetch accessibility info
   const fetchAccessibility = async () => {
     try {
       const resp = await api.get("/accessibility/accessibility");
@@ -18,7 +33,7 @@ export default function Dashboard() {
     }
   };
 
-  // Fetch emergency status
+  // ✅ Fetch emergency status
   const fetchEmergency = async () => {
     try {
       const resp = await api.get("/emergency/status");
@@ -28,14 +43,17 @@ export default function Dashboard() {
     }
   };
 
+  // ✅ Auto refresh every 5 seconds
   useEffect(() => {
+    fetchQueue();
     fetchAccessibility();
     fetchEmergency();
 
     const interval = setInterval(() => {
+      fetchQueue();
       fetchAccessibility();
       fetchEmergency();
-    }, 5000); // Auto-refresh
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -45,10 +63,31 @@ export default function Dashboard() {
       <h1>Dashboard</h1>
 
       <div className="dashboard-grid">
-        {/* Queue Overview */}
+        {/* ✅ Queue Overview */}
         <section>
           <h2>Queue Overview</h2>
-          <QueueStats />
+          {queueError ? (
+            <p style={{ color: "red" }}>{queueError}</p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Location</th>
+                  <th>Normal Queue</th>
+                  <th>Priority Queue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.keys(queueData).map((loc) => (
+                  <tr key={loc}>
+                    <td>{loc}</td>
+                    <td>{queueData[loc].normal}</td>
+                    <td>{queueData[loc].priority}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </section>
 
         {/* Traffic Overview */}
