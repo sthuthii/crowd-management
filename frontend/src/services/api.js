@@ -48,3 +48,5 @@ export const createUser = (userData) => apiClient.post('/users/', userData);
 // evacuation
 
 export const getNearbyExits = (lat, lon) => apiClient.get(`/evacuation/exits-near-me?lat=${lat}&lon=${lon}`);
+
+export const getCrowdPrediction = () => apiClient.get('/alerts/prediction');
