@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from typing import Dict
+from pydantic import BaseModel
 import random
 
 router = APIRouter()
@@ -12,7 +12,13 @@ queues = {
     "Restroom B": {"normal": 2, "priority": 1},
 }
 
-@router.get("/queues")
+# Pydantic model for join/serve requests
+class QueueUpdate(BaseModel):
+    location: str
+    type: str  # "normal" or "priority"
+
+# GET current queues
+@router.get("/")
 async def get_queues():
     """
     Returns current queue lengths.
@@ -24,39 +30,37 @@ async def get_queues():
         updated_queues[loc] = {"normal": normal, "priority": q["priority"]}
     return updated_queues
 
-@router.post("/join-queue/{location}")
-async def join_queue(location: str, priority: bool = False):
+# POST join a queue
+@router.post("/join")
+async def join_queue(data: QueueUpdate):
     """
     Add a person to a queue at a location.
-    Priority=True → priority queue
     """
-    if location not in queues:
+    if data.location not in queues:
         return {"error": "Invalid location"}
     
-    if priority:
-        queues[location]["priority"] += 1
-        qtype = "priority"
-    else:
-        queues[location]["normal"] += 1
-        qtype = "normal"
+    if data.type not in ["normal", "priority"]:
+        return {"error": "Invalid queue type"}
+    
+    queues[data.location][data.type] += 1
+    return {"message": f"You joined the {data.type} queue at {data.location}", "current_queue": queues[data.location]}
 
-    return {"message": f"You joined the {qtype} queue at {location}", "current_queue": queues[location]}
-
-@router.post("/leave-queue/{location}")
-async def leave_queue(location: str):
+# POST serve next in queue
+@router.post("/serve")
+async def serve_next(data: QueueUpdate):
     """
-    Serve next person in the queue. Priority first.
+    Serve next person in the queue. Priority or normal.
     """
-    if location not in queues:
+    if data.location not in queues:
         return {"error": "Invalid location"}
     
-    if queues[location]["priority"] > 0:
-        queues[location]["priority"] -= 1
-        served = "priority"
-    elif queues[location]["normal"] > 0:
-        queues[location]["normal"] -= 1
-        served = "normal"
+    if data.type not in ["normal", "priority"]:
+        return {"error": "Invalid queue type"}
+    
+    if queues[data.location][data.type] > 0:
+        queues[data.location][data.type] -= 1
+        served = data.type
     else:
-        return {"message": "Queue is empty", "current_queue": queues[location]}
-
-    return {"message": f"Served one {served} visitor at {location}", "current_queue": queues[location]}
+        return {"message": f"{data.type.capitalize()} queue is empty", "current_queue": queues[data.location]}
+    
+    return {"message": f"Served one {served} visitor at {data.location}", "current_queue": queues[data.location]}

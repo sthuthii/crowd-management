@@ -15,22 +15,27 @@ from app.routers import (
 from .services.traffic import run_traffic_simulation
 
 
+# ---------------- Lifespan & App Setup ----------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Start the background traffic simulation when the app launches
     asyncio.create_task(run_traffic_simulation())
     yield
 
 
-app = FastAPI(title="Divine Crowd Sense API", lifespan=lifespan)
+# ---------------- FastAPI App ----------------
+app = FastAPI(title="Crowd Management System", lifespan=lifespan)
 
-# ---------------- Middleware ----------------
+
+# ---------------- CORS Middleware ----------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Replace "*" with your frontend URL for security
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # ---------------- Routers ----------------
 app.include_router(emergency.router, prefix="/emergency", tags=["Emergency"])

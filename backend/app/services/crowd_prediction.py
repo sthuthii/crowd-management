@@ -11,17 +11,24 @@ from app.services.csrnet_models import CSRNet
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # -------------------- Model Path --------------------
-# Looks for the .pth file in the same folder as this script
-model_path = Path(__file__).parent / "crowd_counting.pth"
+# Updated to use weights.pth inside models folder
+model_path = Path(__file__).parent.parent / "models" / "weights.pth"
+
+# -------------------- Load Model (Safe Loading) --------------------
+model = CSRNet()
 
 if not model_path.exists():
-    raise FileNotFoundError(f"Model file not found at {model_path}. Please download it!")
-
-# -------------------- Load Model --------------------
-model = CSRNet()
-model.load_state_dict(torch.load(model_path, map_location=device))
-model.to(device)
-model.eval()
+    print(f"[Warning] ⚠️ Model file not found at {model_path}. Skipping model loading for now.")
+    model = None
+else:
+    try:
+        model.load_state_dict(torch.load(model_path, map_location=device))
+        model.to(device)
+        model.eval()
+        print("[Info] ✅ Model loaded successfully.")
+    except Exception as e:
+        print(f"[Error] ❌ Failed to load model: {e}")
+        model = None
 
 # -------------------- Image Transform --------------------
 transform = T.Compose([
@@ -32,6 +39,10 @@ transform = T.Compose([
 
 # -------------------- Predict Crowd in Image --------------------
 def predict_image_file(file_path: str) -> int:
+    if model is None:
+        print("[Warning] No model loaded. Returning dummy count 0.")
+        return 0
+
     img = Image.open(file_path).convert("RGB")
     img_tensor = transform(img).unsqueeze(0).to(device)
 
@@ -57,15 +68,18 @@ def predict_frame_from_video(video_path: str, out_path: str):
         if not ret:
             break
 
-        img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        img_tensor = transform(img).unsqueeze(0).to(device)
+        if model is not None:
+            img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            img_tensor = transform(img).unsqueeze(0).to(device)
 
-        with torch.no_grad():
-            output = model(img_tensor)
-            count = int(output.detach().cpu().sum().numpy())
+            with torch.no_grad():
+                output = model(img_tensor)
+                count = int(output.detach().cpu().sum().numpy())
+        else:
+            count = 0  # Dummy fallback when model not loaded
 
-        cv2.putText(frame, f"Crowd: {count}", (20,50),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0,0,255), 3)
+        cv2.putText(frame, f"Crowd: {count}", (20, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3)
         out.write(frame)
 
     cap.release()

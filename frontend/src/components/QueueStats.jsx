@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import api from "../services/api";
+import React from "react";
 import { Bar } from "react-chartjs-2";
+import useQueues from "../hooks/useQueues";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,39 +13,24 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function QueueStats() {
-  const [queues, setQueues] = useState({});
+export default function QueueStats({ language }) {
+  const { queues, loading, error } = useQueues(language);
 
-  const fetchQueues = async () => {
-    try {
-      const resp = await api.get("/queue/queues");
-      setQueues(resp.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchQueues();
-    const interval = setInterval(fetchQueues, 5000); // auto-refresh every 5s
-    return () => clearInterval(interval);
-  }, []);
-
-  const locations = Object.keys(queues);
+  const locations = Object.keys(queues || {});
   const normalCounts = locations.map((loc) => queues[loc]?.normal || 0);
   const priorityCounts = locations.map((loc) => queues[loc]?.priority || 0);
 
   const data = {
-    labels: locations,
+    labels: locations.length ? locations : ["No Data"],
     datasets: [
       {
         label: "Normal Queue",
-        data: normalCounts,
+        data: normalCounts.length ? normalCounts : [0],
         backgroundColor: "rgba(54, 162, 235, 0.7)",
       },
       {
         label: "Priority Queue",
-        data: priorityCounts,
+        data: priorityCounts.length ? priorityCounts : [0],
         backgroundColor: "rgba(255, 99, 132, 0.7)",
       },
     ],
@@ -59,9 +44,9 @@ export default function QueueStats() {
     },
   };
 
-  return (
-    <div style={{ maxWidth: 700, margin: "0 auto", padding: 20 }}>
-      <Bar data={data} options={options} />
-    </div>
-  );
+  if (loading) return <p style={{ textAlign: "center" }}>Loading queues...</p>;
+  if (error) return <p style={{ textAlign: "center", color: "red" }}>{error}</p>;
+  if (!locations.length) return <p style={{ textAlign: "center" }}>No queue data available</p>;
+
+  return <Bar data={data} options={options} />;
 }

@@ -35,9 +35,12 @@ section h2 {
 table {
   border-radius: 8px;
   overflow: hidden;
+  border-collapse: collapse;
 }
 
 th, td {
+  padding: 12px;
+  text-align: left;
   transition: 0.2s;
 }
 
@@ -55,7 +58,9 @@ select {
   margin-right: 12px;
 }
 
-/* Card-style stats */
+/* ===========================
+   Card-style stats
+=========================== */
 .stat-card {
   background: #f9f9f9;
   border-radius: 12px;
@@ -76,3 +81,112 @@ select {
   font-weight: 700;
   color: #333;
 }
+
+/* ===========================
+   Accessibility Page
+=========================== */
+.accessibility-container {
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #fff;
+  color: #000;
+  transition: 0.3s;
+  font-family: Arial, sans-serif;
+}
+
+.accessibility-container.high-contrast {
+  background-color: #000;
+  color: #fff;
+}
+
+.accessibility-container h1 {
+  margin-bottom: 20px;
+  font-size: 2rem;
+  text-align: center;
+}
+
+.accessibility-map {
+  height: 450px;
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Accessibility Menu (floating widget) */
+.accessibility-menu {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #f0f4f8;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 9999;
+  width: 220px;
+}
+
+.accessibility-menu h2 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.accessibility-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.accessibility-menu button:hover {
+  opacity: 0.9;
+}
+
+/* SOS Button */
+.sos-button {
+  font-size: 18px;
+  padding: 12px 20px;
+  background-color: #ff4d4d;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  width: 200px;
+}
+
+.sos-button:hover {
+  background-color: #e60000;
+}
+
+/* Text size slider */
+.text-size-slider input[type="range"] {
+  width: 150px;
+}
+
+/* ===========================
+   High Contrast Mode
+=========================== */
+.high-contrast {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+.high-contrast nav {
+  background-color: #111 !important;
+}
+
+.high-contrast .stat-card {
+  background-color: #222;
+  color: #fff;
+}
+.page-container { display: flex; gap: 1rem; }
+.menu-container { flex: 1; }
+.map-container { flex: 2; }
+.high-contrast { background-color: #000; color: #fff; }
+.accessibility-container { /* map container styling */ }
