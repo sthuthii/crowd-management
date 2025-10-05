@@ -8,7 +8,6 @@ export default function Dashboard() {
   const [accessibility, setAccessibility] = useState({});
   const [emergency, setEmergency] = useState({});
 
-  // Fetch accessibility info
   const fetchAccessibility = async () => {
     try {
       const resp = await api.get("/accessibility/accessibility");
@@ -18,7 +17,6 @@ export default function Dashboard() {
     }
   };
 
-  // Fetch emergency status
   const fetchEmergency = async () => {
     try {
       const resp = await api.get("/emergency/status");
@@ -31,90 +29,136 @@ export default function Dashboard() {
   useEffect(() => {
     fetchAccessibility();
     fetchEmergency();
-
     const interval = setInterval(() => {
       fetchAccessibility();
       fetchEmergency();
-    }, 5000); // Auto-refresh
-
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="main-content">
-      <h1>Dashboard</h1>
+    <div style={styles.container}>
+      <h1 style={styles.title}>Temple Crowd Management Dashboard</h1>
 
-      <div className="dashboard-grid">
+      <div style={styles.grid}>
         {/* Queue Overview */}
-        <section>
-          <h2>Queue Overview</h2>
+        <div style={styles.card}>
+          <h2 style={styles.cardTitle}>Queue Overview</h2>
           <QueueStats />
-        </section>
+        </div>
 
         {/* Traffic Overview */}
-        <section>
-          <h2>Traffic Overview</h2>
+        <div style={styles.card}>
+          <h2 style={styles.cardTitle}>Traffic Overview</h2>
           <TrafficFlow />
-        </section>
+        </div>
 
         {/* Crowd Overview */}
-        <section>
-          <h2>Crowd Overview</h2>
+        <div style={styles.card}>
+          <h2 style={styles.cardTitle}>Crowd Overview</h2>
           <CrowdStats />
-        </section>
+        </div>
 
         {/* Accessibility Info */}
-        <section>
-          <h2>Accessibility Information</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Location</th>
-                <th>Ramps</th>
-                <th>Priority Entrance</th>
-                <th>Accessible Restroom</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.keys(accessibility).map((loc) => (
-                <tr key={loc}>
-                  <td>{loc}</td>
-                  <td>{accessibility[loc]?.ramps ? "Yes" : "No"}</td>
-                  <td>{accessibility[loc]?.priority_entrance ? "Yes" : "No"}</td>
-                  <td>
-                    {accessibility[loc]?.accessible !== undefined
-                      ? accessibility[loc].accessible
-                        ? "Yes"
-                        : "No"
-                      : "-"}
-                  </td>
+        <div style={styles.card}>
+          <h2 style={styles.cardTitle}>Accessibility Information</h2>
+          <div style={{ overflowX: "auto" }}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th>Location</th>
+                  <th>Ramps</th>
+                  <th>Priority Entrance</th>
+                  <th>Accessible Restroom</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+              </thead>
+              <tbody>
+                {Object.keys(accessibility).map((loc) => (
+                  <tr key={loc}>
+                    <td>{loc}</td>
+                    <td>{accessibility[loc]?.ramps ? "Yes" : "No"}</td>
+                    <td>{accessibility[loc]?.priority_entrance ? "Yes" : "No"}</td>
+                    <td>
+                      {accessibility[loc]?.accessible !== undefined
+                        ? accessibility[loc].accessible
+                          ? "Yes"
+                          : "No"
+                        : "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {/* Emergency Status */}
-        <section>
-          <h2>Emergency Status</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Location</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.keys(emergency).map((loc) => (
-                <tr key={loc}>
-                  <td>{loc}</td>
-                  <td>{emergency[loc]}</td>
+        <div style={styles.card}>
+          <h2 style={styles.cardTitle}>Emergency Status</h2>
+          <div style={{ overflowX: "auto" }}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th>Location</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+              </thead>
+              <tbody>
+                {Object.keys(emergency).map((loc) => (
+                  <tr key={loc}>
+                    <td>{loc}</td>
+                    <td>{emergency[loc]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    padding: "20px",
+    width: "100%",
+    boxSizing: "border-box",
+    backgroundColor: "#f5f5f5",
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: "30px",
+    color: "#2c3e50",
+  },
+  grid: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: "12px",
+    padding: "20px",
+    boxShadow: "0 6px 15px rgba(0,0,0,0.08)",
+    width: "100%",
+    boxSizing: "border-box",
+  },
+  cardTitle: {
+    marginBottom: "15px",
+    color: "#34495e",
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+  },
+  "table th, table td": {
+    border: "1px solid #ddd",
+    padding: "8px",
+    textAlign: "left",
+  },
+  "table th": {
+    backgroundColor: "#f0f0f0",
+  },
+};

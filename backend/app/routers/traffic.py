@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from ..services.traffic import live_data
+from app.services.traffic import live_data  # <-- use absolute import
 
 router = APIRouter()
 
