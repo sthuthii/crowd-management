@@ -3,78 +3,94 @@ import { getActiveAlerts } from '../services/api';
 
 const AlertsDisplay = () => {
     const [alerts, setAlerts] = useState([]);
-    // --- NEW: State to track dismissed alerts, initialized from sessionStorage ---
     const [dismissedAlertIds, setDismissedAlertIds] = useState(() => {
         const saved = sessionStorage.getItem('dismissedAlerts');
         return saved ? JSON.parse(saved) : [];
     });
+    const [dismissedCriticalId, setDismissedCriticalId] = useState(
+        () => sessionStorage.getItem('dismissedCriticalId') || null
+    );
 
     useEffect(() => {
         const fetchAlerts = async () => {
             try {
                 const response = await getActiveAlerts();
-                setAlerts(response.data);
+                const newAlerts = response.data;
+                setAlerts(newAlerts);
+
+                // Check if a new, undismissed critical alert has arrived
+                const newCritical = newAlerts.find(a => a.severity === 'critical');
+                if (newCritical && newCritical.id.toString() !== dismissedCriticalId) {
+                    // This will make the modal reappear if a NEW critical alert is sent
+                    sessionStorage.removeItem('dismissedCriticalId');
+                    setDismissedCriticalId(null);
+                }
             } catch (error) {
                 console.error("Failed to fetch alerts:", error);
             }
         };
 
         fetchAlerts();
-        const interval = setInterval(fetchAlerts, 20000);
-
+        const interval = setInterval(fetchAlerts, 15000);
         return () => clearInterval(interval);
-    }, []);
+    }, [dismissedCriticalId]); // Re-run effect if dismissedCriticalId changes
 
-    // --- NEW: Function to handle dismissing an alert ---
-    const handleDismiss = (alertId) => {
+    const handleDismissNormal = (alertId) => {
         const newDismissedIds = [...dismissedAlertIds, alertId];
         setDismissedAlertIds(newDismissedIds);
         sessionStorage.setItem('dismissedAlerts', JSON.stringify(newDismissedIds));
     };
 
-    // Filter out critical alerts and already dismissed alerts
-    const visibleAlerts = alerts.filter(alert => 
+    // --- MODIFIED: Ensure we always work with strings ---
+    const handleDismissCritical = (alertId) => {
+        const idAsString = alertId.toString();
+        setDismissedCriticalId(idAsString);
+        sessionStorage.setItem('dismissedCriticalId', idAsString);
+    };
+
+    const criticalAlert = alerts.find(alert => alert.severity === 'critical');
+    const normalAlerts = alerts.filter(alert => 
         alert.severity !== 'critical' && !dismissedAlertIds.includes(alert.id)
     );
 
-    // If there's a critical alert, it still takes over the screen
-    const criticalAlert = alerts.find(alert => alert.severity === 'critical');
-    if (criticalAlert) {
-        return (
-            <div className="critical-alert-overlay">
-                <div className="critical-alert-content">
-                    <h1 className="text-danger">CRITICAL ALERT</h1>
-                    <p className="fs-4">{criticalAlert.message}</p>
-                    <p>Please follow instructions from authorities and move towards the nearest exit calmly.</p>
+    const renderCriticalAlert = () => {
+        if (criticalAlert && criticalAlert.id.toString() !== dismissedCriticalId) {
+            return (
+                <div className="critical-alert-overlay">
+                    <div className="critical-alert-content text-center">
+                        <h2 className="text-danger">CRITICAL INCIDENT ALERT</h2>
+                        <p className="fs-5 mt-3">{criticalAlert.message}</p>
+                        <p>Please remain calm and follow all instructions from temple staff and authorities.</p>
+                        <button 
+                            className="btn btn-primary mt-3" 
+                            onClick={() => handleDismissCritical(criticalAlert.id)}
+                        >
+                            Dismiss
+                        </button>
+                    </div>
                 </div>
-            </div>
-        );
-    }
-
-    if (visibleAlerts.length === 0) {
+            );
+        }
         return null;
-    }
-    
-    const getAlertClass = (severity) => {
-        if (severity === 'warning') return 'alert-warning';
-        return 'alert-info';
     };
 
     return (
-        <div className="container mt-3">
-            {visibleAlerts.map(alert => (
-                <div key={alert.id} className={`alert ${getAlertClass(alert.severity)} alert-dismissible fade show`} role="alert">
-                    <strong>ALERT:</strong> {alert.message}
-                    {/* --- NEW: Close Button --- */}
-                    <button 
-                        type="button" 
-                        className="btn-close" 
-                        onClick={() => handleDismiss(alert.id)}
-                        aria-label="Close"
-                    ></button>
-                </div>
-            ))}
-        </div>
+        <>
+            {renderCriticalAlert()}
+            <div className="container mt-3">
+                {normalAlerts.map(alert => (
+                    <div key={alert.id} className={`alert ${alert.severity === 'warning' ? 'alert-warning' : 'alert-info'} alert-dismissible fade show`} role="alert">
+                        <strong>ALERT:</strong> {alert.message}
+                        <button 
+                            type="button" 
+                            className="btn-close" 
+                            onClick={() => handleDismissNormal(alert.id)}
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                ))}
+            </div>
+        </>
     );
 };
 

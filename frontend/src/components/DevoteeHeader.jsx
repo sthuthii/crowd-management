@@ -17,7 +17,7 @@ const DevoteeHeader = () => {
       {/* Top row with title and login/logout */}
       <div className="header-top-row">
         <div>
-          <h1 className="header-title">TirthaSaathi</h1>
+          <h1 className="header-title">DarshanSahay</h1>
           <p className="header-subtitle">Smart Crowd Management</p>
         </div>
         <div>
@@ -47,7 +47,7 @@ const DevoteeHeader = () => {
         {user && user.role === 'admin' && (
             <>
                 <Link className="nav-link" to="/admin">Admin Dashboard</Link>
-                <Link className="nav-link" to="/register">Register User</Link>
+                
             </>
         )}
       </nav>

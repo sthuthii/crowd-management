@@ -21,7 +21,7 @@ const EmergencyList = ({ emergencies, onUpdateStatus }) => {
                 <li key={emergency.id} className="list-group-item d-flex justify-content-between align-items-center">
                     <div>
                         <strong>{emergency.emergency_type}</strong> (ID: {emergency.id})<br />
-                        <small>User: {emergency.user_id} @ {new Date(emergency.timestamp).toLocaleTimeString()}</small>
+                        <small>User: {emergency.user_id} @ {new Date(emergency.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</small>
                     </div>
                     <div>
                         <span className="badge bg-warning me-3">{emergency.status.toUpperCase()}</span>
@@ -122,7 +122,7 @@ const Admin = () => {
     const handleUpdateStatus = async (id, newStatus) => {
         try {
             await updateEmergency(id, { status: newStatus });
-            // The list will update on the next interval
+            fetchEmergencies();
         } catch (err) {
             console.error('Failed to update status.');
         }
