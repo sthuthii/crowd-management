@@ -15,6 +15,7 @@ from app.routers import (
 app = FastAPI(title="Crowd Management System")
 
 # ---------------- CORS Middleware ----------------
+# Allows your React frontend to access this API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Replace "*" with your frontend URL for security

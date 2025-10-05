@@ -8,6 +8,7 @@ export default function useQueues(language = "en-US") {
   const [error, setError] = useState(null);
 
   const prevQueuesRef = useRef({}); // track previous counts for TTS
+  const speechQueueRef = useRef([]); // queue multiple messages
 
   // Fetch queues from backend
   const fetchQueues = async () => {
@@ -16,16 +17,16 @@ export default function useQueues(language = "en-US") {
       const newQueues = res.data || {};
       setQueues(newQueues);
 
-      // TTS: announce only changes
+      // Announce only changes
       Object.keys(newQueues).forEach((loc) => {
         const prev = prevQueuesRef.current[loc] || { normal: 0, priority: 0 };
         const curr = newQueues[loc];
 
         if (prev.normal !== curr.normal) {
-          speak(`${loc} normal queue is now ${curr.normal}`, language);
+          enqueueSpeech(`${loc} normal queue is now ${curr.normal}`);
         }
         if (prev.priority !== curr.priority) {
-          speak(`${loc} priority queue is now ${curr.priority}`, language);
+          enqueueSpeech(`${loc} priority queue is now ${curr.priority}`);
         }
       });
 
@@ -39,6 +40,23 @@ export default function useQueues(language = "en-US") {
     }
   };
 
+  // Queue speech to prevent overlapping and handle multiple messages
+  const enqueueSpeech = (text) => {
+    speechQueueRef.current.push(text);
+    if (!window.speechSynthesis.speaking) {
+      speakNext();
+    }
+  };
+
+  const speakNext = () => {
+    if (speechQueueRef.current.length === 0) return;
+    const text = speechQueueRef.current.shift();
+    speak(text, language).finally(() => {
+      // Give a small delay before next speech
+      setTimeout(() => speakNext(), 200);
+    });
+  };
+
   useEffect(() => {
     fetchQueues();
     const interval = setInterval(fetchQueues, 5000);
@@ -49,7 +67,7 @@ export default function useQueues(language = "en-US") {
   const joinQueue = async (location, type) => {
     try {
       await axios.post("http://127.0.0.1:8000/queue/join", { location, type });
-      speak(`You joined the ${type} queue at ${location}`, language);
+      enqueueSpeech(`You joined the ${type} queue at ${location}`);
       fetchQueues();
     } catch (err) {
       console.error(err);
@@ -61,7 +79,7 @@ export default function useQueues(language = "en-US") {
   const serveNext = async (location, type) => {
     try {
       await axios.post("http://127.0.0.1:8000/queue/serve", { location, type });
-      speak(`Next person served from ${type} queue at ${location}`, language);
+      enqueueSpeech(`Next person served from ${type} queue at ${location}`);
       fetchQueues();
     } catch (err) {
       console.error(err);
