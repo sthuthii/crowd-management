@@ -27,7 +27,7 @@ const EmergencyList = ({ emergencies, onUpdateStatus }) => {
                         <span className="badge bg-warning me-3">{emergency.status.toUpperCase()}</span>
                         <div className="btn-group">
                             <button className="btn btn-primary btn-sm" onClick={() => onUpdateStatus(emergency.id, 'dispatched')}>Dispatch</button>
-                            <button className="btn btn-success btn-sm" onClick={() => onUpdateStatus(emergency.id, 'resolved')}>Resolve</button>
+                            <button className="btn btn-custom-outline btn-sm" onClick={() => onUpdateStatus(emergency.id, 'resolved')}>Resolve</button>
                         </div>
                     </div>
                 </li>

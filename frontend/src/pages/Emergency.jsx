@@ -9,9 +9,9 @@ const Emergency = () => {
     const [showModal, setShowModal] = useState(false);
     const [myAlertId, setMyAlertId] = useState(null);
 
-    // We still fetch all emergencies in the background to get status updates for our own alert
+    // Fetch emergencies in the background to get status updates for our own alert
     useEffect(() => {
-        const fetchEmergencies = async () => {
+        const fetchForStatus = async () => {
             try {
                 const response = await getActiveEmergencies();
                 setEmergencies(response.data);
@@ -20,8 +20,8 @@ const Emergency = () => {
             }
         };
 
-        fetchEmergencies();
-        const interval = setInterval(fetchEmergencies, 10000);
+        fetchForStatus(); // Fetch once on load
+        const interval = setInterval(fetchForStatus, 10000); // Then poll for updates
         return () => clearInterval(interval);
     }, []);
 
@@ -31,69 +31,71 @@ const Emergency = () => {
         setMyAlertId(null);
     };
 
-   
-const handleEmergencySelect = async (emergencyType) => {
-    setSosLoading(true);
-    setError('');
-    setShowModal(false);
+    const handleEmergencySelect = async (emergencyType) => {
+        setSosLoading(true);
+        setError('');
+        setShowModal(false);
 
-    // This function will be called after getting the location
-    const sendSos = async (latitude, longitude) => {
-        const emergencyData = {
-            user_id: `devotee_${Date.now()}`,
-            latitude: latitude,
-            longitude: longitude,
-            emergency_type: emergencyType
+        const sendSos = async (latitude, longitude) => {
+            const emergencyData = {
+                user_id: `devotee_${Date.now()}`,
+                latitude: latitude,
+                longitude: longitude,
+                emergency_type: emergencyType
+            };
+
+            try {
+                const response = await createEmergency(emergencyData);
+                setAlertSent(true);
+                setMyAlertId(response.data.id);
+                // Manually add the new alert to the list for an instant UI update
+                setEmergencies(prev => [response.data, ...prev]);
+            } catch (err) {
+                setError('Failed to send SOS. Please try again.');
+                console.error(err);
+            } finally {
+                setSosLoading(false);
+            }
         };
 
-        try {
-            const response = await createEmergency(emergencyData);
-            setAlertSent(true);
-            setMyAlertId(response.data.id);
-            setEmergencies(prev => [response.data, ...prev]);
-        } catch (err) {
-            setError('Failed to send SOS. Please try again.');
-            console.error(err);
-        } finally {
-            setSosLoading(false);
+        // Use the Geolocation API to get the user's real location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    sendSos(position.coords.latitude, position.coords.longitude);
+                },
+                () => {
+                    setError("Could not get location. Sending with default coordinates.");
+                    sendSos(20.913, 70.363); // Fallback mock location
+                }
+            );
+        } else {
+            setError("Geolocation is not supported. Sending with default coordinates.");
+            sendSos(20.913, 70.363); // Fallback mock location
         }
     };
-
-    // --- NEW: Use the Geolocation API ---
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                // Success: We got the real location
-                sendSos(position.coords.latitude, position.coords.longitude);
-            },
-            () => {
-                // Error/Denied: Fallback to the mock location
-                setError("Could not get location. Sending with default coordinates.");
-                sendSos(20.9517, 70.3979); // Default mock location
-            }
-        );
-    } else {
-        // Geolocation not supported by browser
-        setError("Geolocation is not supported by your browser. Sending with default coordinates.");
-        sendSos(20.9517, 70.3979); // Default mock location
-    }
-};
-
-
 
     const myAlert = emergencies.find(e => e.id === myAlertId);
 
     return (
         <>
             {showModal && (
-                 <div className="modal-overlay">
+                <div className="modal-overlay">
                     <div className="modal-content text-center">
                         <h4>Select Emergency Type</h4>
-                        <button className="btn btn-warning btn-lg w-100 mb-2" onClick={() => handleEmergencySelect('Medical')}>Medical</button>
-                        <button className="btn btn-info btn-lg w-100 mb-2" onClick={() => handleEmergencySelect('Lost Child')}>Lost Child</button>
-                        <button className="btn btn-secondary btn-lg w-100" onClick={() => handleEmergencySelect('Security')}>Security</button>
+                        <div className="emergency-options">
+                            <div className="selection-card" onClick={() => handleEmergencySelect('Medical')}>
+                                <span className="selection-card-text">Medical</span>
+                            </div>
+                            <div className="selection-card" onClick={() => handleEmergencySelect('Lost Child')}>
+                                <span className="selection-card-text">Lost Child</span>
+                            </div>
+                            <div className="selection-card" onClick={() => handleEmergencySelect('Security')}>
+                                <span className="selection-card-text">Security</span>
+                            </div>
+                        </div>
                         <hr />
-                        <button className="btn btn-light w-100" onClick={() => setShowModal(false)}>Cancel</button>
+                        <button className="btn btn-light w-100 mt-3" onClick={() => setShowModal(false)}>Cancel</button>
                     </div>
                 </div>
             )}

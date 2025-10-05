@@ -32,3 +32,41 @@ body {
   background-color: #e05a10;
   border-color: #e05a10;
 }
+/* Styles for the Emergency Modal Selection Cards */
+.emergency-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.selection-card {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f8f9fa; /* Light gray */
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.selection-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-color: var(--primary-color);
+}
+
+.selection-card-icon {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-right: 1rem;
+  width: 40px; /* Ensures alignment */
+  text-align: center;
+}
+
+.selection-card-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+}
