@@ -1,5 +1,3 @@
-# In backend/app/database/models.py
-
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from .db import Base
@@ -20,7 +18,6 @@ class DigitalPass(Base):
     qr_code_url = Column(String)
     owner = relationship("User", back_populates="passes")
 
-# --- ADD THIS MISSING MODEL ---
 class Queue(Base):
     __tablename__ = "queues"
     id = Column(String, primary_key=True, index=True)

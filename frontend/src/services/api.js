@@ -1,13 +1,9 @@
-// In src/services/api.js
 import axios from 'axios';
-import config from '../config'; // Using the config file from the template
 
 const apiClient = axios.create({
-  // Add /api to the end of the URL
-  baseURL: 'http://127.0.0.1:8000/api',
+    baseURL: 'http://127.0.0.1:8000/api'
 });
 
-// This function automatically adds the login token to secure requests
 const setAuthHeader = () => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -28,17 +24,21 @@ export const loginUser = (username, password) => {
         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
 };
+
 // --- Queue & Ticketing Functions ---
 export const getQueues = () => {
-    const token = localStorage.getItem('token');
-    return apiClient.get('/queues', {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+    setAuthHeader();
+    return apiClient.get('/queues');
 };
 
 export const bookPass = (passData) => {
-    const token = localStorage.getItem('token');
-    return apiClient.post('/passes', passData, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+    setAuthHeader();
+    return apiClient.post('/passes', passData);
 };
+
+export const getMyPass = () => {
+    setAuthHeader();
+    return apiClient.get('/passes/me');
+};
+
+export default apiClient;

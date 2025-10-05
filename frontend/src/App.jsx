@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
-import { getQueues, bookPass, registerUser, loginUser } from './services/api';
+import { getQueues, bookPass, registerUser, loginUser, getMyPass } from './services/api';
 import './App.css';
 
 // --- Login Page Component ---
@@ -17,8 +17,7 @@ const LoginPage = ({ onLoginSuccess }) => {
                 onLoginSuccess();
             }
         } catch (error) {
-            alert('Login failed! Please check your credentials.');
-            console.error(error);
+            alert('Login failed!');
         }
     };
 
@@ -50,8 +49,7 @@ const RegisterPage = () => {
             alert('Registration successful! Please log in.');
             navigate('/login');
         } catch (error) {
-            alert('Registration failed: ' + (error.response?.data?.detail || 'Please try again.'));
-            console.error(error);
+            alert('Registration failed: ' + (error.response?.data?.detail || 'Error.'));
         }
     };
 
@@ -77,21 +75,27 @@ const QueuePage = ({ onLogout }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [formState, setFormState] = useState({ queue_id: 'q_general', number_of_people: 1 });
 
-    useEffect(() => {
-        const fetchQueues = async () => {
-            setIsLoading(true);
-            try {
-                const response = await getQueues();
-                setQueues(response.data);
-            } catch (error) {
-                console.error("Failed to fetch queues:", error);
-                if (error.response?.status === 401) onLogout();
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchQueues();
+    const fetchUserAndQueueData = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const passResponse = await getMyPass();
+            setBookedPass(passResponse.data);
+        } catch (error) {
+            console.log("No active pass found.");
+        }
+        try {
+            const queuesResponse = await getQueues();
+            setQueues(queuesResponse.data);
+        } catch (error) {
+            if (error.response?.status === 401) onLogout();
+        } finally {
+            setIsLoading(false);
+        }
     }, [onLogout]);
+
+    useEffect(() => {
+        fetchUserAndQueueData();
+    }, [fetchUserAndQueueData]);
 
     const handleBooking = async (e) => {
         e.preventDefault();
@@ -101,7 +105,16 @@ const QueuePage = ({ onLogout }) => {
             setBookedPass(response.data);
             alert('Pass booked successfully!');
         } catch (error) {
-            alert('Booking failed! ' + (error.response?.data?.detail || 'You may already have a booking.'));
+            if (error.response?.data?.detail === "User already has an active pass.") {
+                const confirmView = window.confirm("You already have a booking. Do you want to view your existing pass?");
+                if (confirmView) {
+                    const passResponse = await getMyPass();
+                    setBookedPass(passResponse.data);
+                    document.getElementById('pass-card')?.scrollIntoView({ behavior: 'smooth' });
+                }
+            } else {
+                alert('Booking failed!');
+            }
         }
     };
 
@@ -117,22 +130,38 @@ const QueuePage = ({ onLogout }) => {
                 <div className="main-layout">
                     <div className="card">
                         <h2>Live Queue Status</h2>
-                        <ul className="queues-list">{queues.map(q => <li key={q.id}><span>{q.name}</span><span className={`status-${q.status}`}><strong>{q.wait_time_minutes} mins</strong></span></li>)}</ul>
+                        <ul className="queues-list">
+                            {queues.map(q => (
+                                <li key={q.id}>
+                                    <span>{q.name}</span>
+                                    <span className={`status-${q.status}`}><strong>{q.wait_time_minutes} mins</strong></span>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                     <div className="card">
                         <form className="booking-form" onSubmit={handleBooking}>
                             <h2>Book a Digital Pass</h2>
-                            <select name="queue_id" value={formState.queue_id} onChange={e => setFormState({...formState, queue_id: e.target.value})}>{queues.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}</select>
+                            <select name="queue_id" value={formState.queue_id} onChange={e => setFormState({...formState, queue_id: e.target.value})}>
+                                {queues.map(q => <option key={q.id} value={q.id}>{q.name}</option>)}
+                            </select>
                             <input name="number_of_people" type="number" value={formState.number_of_people} onChange={e => setFormState({...formState, number_of_people: e.target.value})} min="1" required />
                             <button type="submit">Book My Pass</button>
                         </form>
                     </div>
                 </div>
+
                 {bookedPass && (
-                    <div className="pass-details card">
+                    <div id="pass-card" className="pass-details card">
                         <h3>Your Pass is Booked!</h3>
+                        <p><strong>Devotee:</strong> {bookedPass.owner.username}</p>
                         <p><strong>Pass ID:</strong> {bookedPass.pass_id}</p>
-                        <img src={bookedPass.qr_code_url} alt="QR Code" />
+                        <a href={bookedPass.qr_code_url} download={`darshan-pass-${bookedPass.pass_id}.png`}>
+                            <img src={bookedPass.qr_code_url} alt="QR Code" />
+                        </a>
+                        <p style={{textAlign: 'center', marginTop: '10px'}}>
+                            <a href={bookedPass.qr_code_url} download={`darshan-pass-${bookedPass.pass_id}.png`}>Download QR Code</a>
+                        </p>
                     </div>
                 )}
             </main>
@@ -140,19 +169,19 @@ const QueuePage = ({ onLogout }) => {
     );
 };
 
-// --- Main App Component (Handles Routing) ---
+// --- App Wrapper ---
 function App() {
     const [token, setToken] = useState(localStorage.getItem('token'));
     const navigate = useNavigate();
 
-    const handleLoginSuccess = () => {
-        setToken(localStorage.getItem('token'));
-        navigate('/');
+    const handleLoginSuccess = () => { 
+        setToken(localStorage.getItem('token')); 
+        navigate('/'); 
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        setToken(null);
+    const handleLogout = () => { 
+        localStorage.removeItem('token'); 
+        setToken(null); 
     };
 
     return (
@@ -165,7 +194,6 @@ function App() {
     );
 }
 
-// --- App Wrapper with Router ---
 function AppWrapper() {
     return (
         <Router>
