@@ -6,7 +6,7 @@ from typing import List
 
 from ..database import schemas, models
 from ..database.db import get_db
-from .. import security 
+from .. import security
 
 router = APIRouter(
     prefix="/api/emergency",
@@ -24,8 +24,8 @@ def create_emergency_alert(
     db.add(db_emergency)
     db.commit()
     db.refresh(db_emergency)
-    # In a real app, this would also trigger notifications to the admin dashboard.
     return db_emergency
+
 
 @router.get("/", response_model=List[schemas.Emergency])
 def get_active_emergencies(db: Session = Depends(get_db)):
@@ -33,6 +33,7 @@ def get_active_emergencies(db: Session = Depends(get_db)):
     Get a list of all active (not resolved) emergencies.
     """
     return db.query(models.Emergency).filter(models.Emergency.status != "resolved").all()
+
 
 @router.get("/{emergency_id}", response_model=schemas.Emergency)
 def get_emergency_by_id(emergency_id: int, db: Session = Depends(get_db)):
@@ -43,6 +44,7 @@ def get_emergency_by_id(emergency_id: int, db: Session = Depends(get_db)):
     if db_emergency is None:
         raise HTTPException(status_code=404, detail="Emergency not found")
     return db_emergency
+
 
 @router.put("/{emergency_id}", response_model=schemas.Emergency)
 def update_emergency_status(

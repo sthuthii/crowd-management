@@ -1,52 +1,89 @@
-import axios from 'axios';
+// frontend/src/services/api.js
+import axios from "axios";
 
-// The full base URL, including /api
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+const API_BASE_URL = "http://127.0.0.1:8000"; // Adjust if running elsewhere
 
-const apiClient = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Interceptor to automatically add the auth token to requests
-apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
+// Interceptor — adds Authorization token if present
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
-}, (error) => {
-    return Promise.reject(error);
-});
+  },
+  (error) => Promise.reject(error)
+);
 
-// --- Service Functions (using relative paths) ---
+// ==============================
+// EMERGENCY SERVICES
+// ==============================
+export const createEmergency = (data) => api.post("/emergency/", data);
+export const getActiveEmergencies = () => api.get("/emergency/");
+export const updateEmergency = (id, data) => api.put(`/emergency/${id}`, data);
 
-export const createEmergency = (emergencyData) => apiClient.post('/emergency/', emergencyData);
-export const getActiveEmergencies = () => apiClient.get('/emergency/');
-export const updateEmergency = (id, updateData) => apiClient.put(`/emergency/${id}`, updateData);
+// ==============================
+// LOST & FOUND
+// ==============================
+export const getLostAndFoundItems = () => api.get("/lost-and-found/");
+export const createLostAndFoundItem = (data) => api.post("/lost-and-found/", data);
+export const updateLostAndFoundItem = (id, data) => api.put(`/lost-and-found/${id}`, data);
 
-export const getLostAndFoundItems = () => apiClient.get('/lost-and-found/');
-export const createLostAndFoundItem = (itemData) => apiClient.post('/lost-and-found/', itemData);
-export const updateLostAndFoundItem = (id, updateData) => apiClient.put(`/lost-and-found/${id}`, updateData);
+// ==============================
+// ALERTS
+// ==============================
+export const getActiveAlerts = () => api.get("/alerts/");
+export const createAlert = (data) => api.post("/alerts/", data);
 
-export const getActiveAlerts = () => apiClient.get('/alerts/');
-export const createAlert = (alertData) => apiClient.post('/alerts/', alertData);
-
-export const loginUser = (username, password) => {
-    const body = `grant_type=password&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-    // Corrected path is now relative to the baseURL
-    return apiClient.post('/token', body, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
+// ==============================
+// PRIORITY / NAVIGATION
+// ==============================
+export const fetchPriorityRoutes = async () => {
+  try {
+    const res = await api.get("/priority/");
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching priority routes:", err);
+    return [];
+  }
 };
 
-// You will also need a createUser function for a registration page later
-export const createUser = (userData) => apiClient.post('/users/', userData);
+// ==============================
+// CROWD PREDICTION
+// ==============================
+export const getCrowdPrediction = () => api.get("/crowd_prediction");
 
-// evacuation
+// ==============================
+// ACCESSIBILITY
+// ==============================
+export const getAccessibilityInfo = () => api.get("/accessibility/accessibility");
 
-export const getNearbyExits = (lat, lon) => apiClient.get(`/evacuation/exits-near-me?lat=${lat}&lon=${lon}`);
+// ==============================
+// TRAFFIC
+// ==============================
+export const getTrafficData = () => api.get("/traffic/");
 
-export const getCrowdPrediction = () => apiClient.get('/alerts/prediction');
+// ==============================
+// AUTHENTICATION
+// ==============================
+export const loginUser = (username, password) => {
+  const body = `grant_type=password&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+  return api.post("/token", body, {
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  });
+};
+
+export const createUser = (userData) => api.post("/users/", userData);
+
+// ==============================
+// EVACUATION
+// ==============================
+export const getNearbyExits = (lat, lon) =>
+  api.get(`/evacuation/exits-near-me?lat=${lat}&lon=${lon}`);
+
+export default api;
