@@ -50,7 +50,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/prediction" element={<Prediction />} />
           <Route path="/traffic" element={<Traffic />} />
 
           {/* Queue Page replaced with unified Dashboard */}
