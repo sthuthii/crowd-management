@@ -1,52 +1,71 @@
-from fastapi import APIRouter
-from typing import Dict
-import random
+# backend/app/routers/emergency.py
 
-router = APIRouter()
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
 
-# Hardcoded emergency data
-emergency_status: Dict[str, str] = {
-    "Main Hall": "Safe",
-    "Temple Gate": "Safe",
-    "Cafeteria": "Safe",
-    "Parking Lot": "Safe",
-}
+from ..database import schemas, models
+from ..database.db import get_db
+from .. import security
 
-# Hardcoded exits per location
-emergency_exits: Dict[str, list] = {
-    "Main Hall": ["North Door", "South Door"],
-    "Temple Gate": ["East Gate"],
-    "Cafeteria": ["Back Door"],
-    "Parking Lot": ["Exit 1", "Exit 2"],
-}
+router = APIRouter(
+    prefix="/api/emergency",
+    tags=["Emergency"]
+)
 
-@router.get("/status")
-async def get_status():
+@router.post("/", response_model=schemas.Emergency)
+def create_emergency_alert(
+    emergency: schemas.EmergencyCreate, db: Session = Depends(get_db)
+):
     """
-    Get current emergency status for all locations.
+    Create a new emergency alert. This is the SOS trigger.
     """
-    return emergency_status
+    db_emergency = models.Emergency(**emergency.dict())
+    db.add(db_emergency)
+    db.commit()
+    db.refresh(db_emergency)
+    return db_emergency
 
-@router.get("/exits/{location}")
-async def get_exits(location: str):
-    """
-    Get emergency exits for a specific location.
-    """
-    if location not in emergency_exits:
-        return {"error": "Invalid location"}
-    return {"location": location, "exits": emergency_exits[location]}
 
-@router.post("/alert/{location}")
-async def trigger_alert(location: str):
+@router.get("/", response_model=List[schemas.Emergency])
+def get_active_emergencies(db: Session = Depends(get_db)):
     """
-    Trigger an emergency alert at a location.
-    Randomly simulate alert severity.
+    Get a list of all active (not resolved) emergencies.
     """
-    if location not in emergency_status:
-        return {"error": "Invalid location"}
-    
-    emergency_status[location] = random.choice(["Safe", "Alert", "Critical"])
-    return {
-        "message": f"Alert triggered at {location}",
-        "status": emergency_status[location]
-    }
+    return db.query(models.Emergency).filter(models.Emergency.status != "resolved").all()
+
+
+@router.get("/{emergency_id}", response_model=schemas.Emergency)
+def get_emergency_by_id(emergency_id: int, db: Session = Depends(get_db)):
+    """
+    Get details of a specific emergency by its ID.
+    """
+    db_emergency = db.query(models.Emergency).filter(models.Emergency.id == emergency_id).first()
+    if db_emergency is None:
+        raise HTTPException(status_code=404, detail="Emergency not found")
+    return db_emergency
+
+
+@router.put("/{emergency_id}", response_model=schemas.Emergency)
+def update_emergency_status(
+    emergency_id: int,
+    emergency_update: schemas.EmergencyUpdate,
+    db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(security.get_current_user)
+):
+    """
+    Update the status or notes of an emergency (for admins).
+    e.g., "dispatched", "resolved"
+    """
+    db_emergency = db.query(models.Emergency).filter(models.Emergency.id == emergency_id).first()
+    if db_emergency is None:
+        raise HTTPException(status_code=404, detail="Emergency not found")
+
+    if emergency_update.status:
+        db_emergency.status = emergency_update.status
+    if emergency_update.notes:
+        db_emergency.notes = emergency_update.notes
+
+    db.commit()
+    db.refresh(db_emergency)
+    return db_emergency

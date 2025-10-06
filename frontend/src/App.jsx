@@ -1,21 +1,30 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
 import "./styles/global.css";
 import "./styles/components.css";
 
-// Components & Pages
+// Components
 import Navbar from "./components/Navbar";
 import AccessibilityMenu from "./components/AccessibilityMenu";
+import AlertsDisplay from "./components/AlertsDisplay";
+import ProtectedRoute from "./components/ProtectedRoute";
 
+// Pages
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Prediction from "./pages/Prediction";
 import Traffic from "./pages/Traffic";
 import Accessibility from "./pages/Accessibility";
 import Emergency from "./pages/Emergency";
-// New Queue Dashboard
+import LostAndFound from "./pages/LostAndFound";
+import Admin from "./pages/Admin";
+import LoginPage from "./pages/LoginPage";
+import EvacuationPage from "./pages/EvacuationPage";
 import QueueDashboard from "./components/QueueDashboard";
 
+// TTS
 import { speak as ttsSpeak } from "./services/tts";
 
 function App() {
@@ -26,9 +35,10 @@ function App() {
   return (
     <Router>
       <Navbar />
+      <AlertsDisplay />
 
-      {/* Accessibility Controls */}
-      <div className="fixed bottom-4 right-4 z-50">
+      {/* Accessibility Menu */}
+      <div className="fixed-accessibility">
         <AccessibilityMenu
           onTextResize={setTextSize}
           onContrastToggle={() => setHighContrast(!highContrast)}
@@ -50,12 +60,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/prediction" element={<Prediction />} />
           <Route path="/traffic" element={<Traffic />} />
-
-          {/* Queue Page replaced with unified Dashboard */}
-          <Route path="/queue" element={<QueueDashboard language="en-US" />} />
-
-          {/* Accessibility Page */}
           <Route
             path="/accessibility"
             element={
@@ -67,8 +73,19 @@ function App() {
               />
             }
           />
-
           <Route path="/emergency" element={<Emergency />} />
+          <Route path="/lost-and-found" element={<LostAndFound />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/evacuation" element={<EvacuationPage />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/queue" element={<QueueDashboard language="en-US" />} />
           <Route path="*" element={<h1>404 - Page Not Found</h1>} />
         </Routes>
       </div>
@@ -76,7 +93,6 @@ function App() {
   );
 }
 
-// Accessibility wrapper with ref forwarding
 const AccessibilityWrapper = forwardRef(({ textSize, highContrast, speak }, ref) => {
   const routes = [
     {
