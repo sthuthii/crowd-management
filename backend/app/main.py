@@ -12,18 +12,21 @@ from app.routers import (
     traffic,
     queue
 )
-from app.services.traffic import run_traffic_simulation  # <-- absolute import
+from app.services.traffic import run_traffic_simulation
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     asyncio.create_task(run_traffic_simulation())
     yield
 
+
 app = FastAPI(title="Crowd Management System", lifespan=lifespan)
 
+# Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # change later to your frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,6 +41,7 @@ app.include_router(crowd_prediction.router)
 app.include_router(traffic.router, prefix="/traffic", tags=["Traffic"])
 app.include_router(queue.router, prefix="/queue", tags=["Queue"])
 
+# Health Check
 @app.get("/")
-def read_root():
-    return {"status": "API is running"}
+def root():
+    return {"status": "Backend running successfully 🚀"}

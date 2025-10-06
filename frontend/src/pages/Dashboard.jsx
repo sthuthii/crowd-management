@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import QueueStats from "../components/QueueStats";
 import TrafficFlow from "../components/TrafficFlow";
 import CrowdStats from "../components/CrowdStats";
 import api from "../services/api";
@@ -7,6 +6,21 @@ import api from "../services/api";
 export default function Dashboard() {
   const [accessibility, setAccessibility] = useState({});
   const [emergency, setEmergency] = useState({});
+  const [queueData, setQueueData] = useState({});
+  const [queueError, setQueueError] = useState("");
+
+  const fetchQueue = async () => {
+    try {
+      const resp = await fetch("http://127.0.0.1:8000/queue");
+      if (!resp.ok) throw new Error("Failed to fetch queue data");
+      const data = await resp.json();
+      setQueueData(data);
+      setQueueError("");
+    } catch (err) {
+      console.error(err);
+      setQueueError("Failed to fetch queue data. Please check backend.");
+    }
+  };
 
   const fetchAccessibility = async () => {
     try {
@@ -27,12 +41,16 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    fetchQueue();
     fetchAccessibility();
     fetchEmergency();
+
     const interval = setInterval(() => {
+      fetchQueue();
       fetchAccessibility();
       fetchEmergency();
     }, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -41,25 +59,48 @@ export default function Dashboard() {
       <h1 style={styles.title}>Temple Crowd Management Dashboard</h1>
 
       <div style={styles.grid}>
-        {/* Queue Overview */}
+        {/* ✅ Queue Overview */}
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Queue Overview</h2>
-          <QueueStats />
+          {queueError ? (
+            <p style={{ color: "red" }}>{queueError}</p>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Location</th>
+                    <th>Normal Queue</th>
+                    <th>Priority Queue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(queueData).map((loc) => (
+                    <tr key={loc}>
+                      <td>{loc}</td>
+                      <td>{queueData[loc].normal}</td>
+                      <td>{queueData[loc].priority}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
-        {/* Traffic Overview */}
+        {/* ✅ Traffic Overview */}
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Traffic Overview</h2>
           <TrafficFlow />
         </div>
 
-        {/* Crowd Overview */}
+        {/* ✅ Crowd Overview */}
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Crowd Overview</h2>
           <CrowdStats />
         </div>
 
-        {/* Accessibility Info */}
+        {/* ✅ Accessibility Info */}
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Accessibility Information</h2>
           <div style={{ overflowX: "auto" }}>
@@ -77,7 +118,9 @@ export default function Dashboard() {
                   <tr key={loc}>
                     <td>{loc}</td>
                     <td>{accessibility[loc]?.ramps ? "Yes" : "No"}</td>
-                    <td>{accessibility[loc]?.priority_entrance ? "Yes" : "No"}</td>
+                    <td>
+                      {accessibility[loc]?.priority_entrance ? "Yes" : "No"}
+                    </td>
                     <td>
                       {accessibility[loc]?.accessible !== undefined
                         ? accessibility[loc].accessible
@@ -92,7 +135,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Emergency Status */}
+        {/* ✅ Emergency Status */}
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Emergency Status</h2>
           <div style={{ overflowX: "auto" }}>
@@ -124,7 +167,6 @@ const styles = {
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
     padding: "20px",
     width: "100%",
-    boxSizing: "border-box",
     backgroundColor: "#f5f5f5",
   },
   title: {
@@ -152,13 +194,5 @@ const styles = {
   table: {
     width: "100%",
     borderCollapse: "collapse",
-  },
-  "table th, table td": {
-    border: "1px solid #ddd",
-    padding: "8px",
-    textAlign: "left",
-  },
-  "table th": {
-    backgroundColor: "#f0f0f0",
   },
 };
