@@ -12,6 +12,9 @@ export default function Navbar() {
     { name: "Queue", path: "/queue" },
     { name: "Accessibility", path: "/accessibility" },
     { name: "Emergency", path: "/emergency" },
+    {name : "Lost and Found", path : "/lost-and-found"},
+    {name : "Evacuation", path : "/evacuation"},
+
   ];
 
   return (

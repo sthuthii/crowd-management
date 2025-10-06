@@ -8,7 +8,7 @@ from ..database import schemas, models
 from ..database.db import get_db
 
 router = APIRouter(
-    prefix="/api/lost-and-found",
+    prefix="/lost-and-found",
     tags=["Lost and Found"]
 )
 
