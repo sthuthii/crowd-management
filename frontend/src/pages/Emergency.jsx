@@ -1,8 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  createEmergency,
-  getActiveEmergencies,
-} from "../services/api";
 import api from "../services/api";
 
 const locations = ["Main Hall", "Temple Gate", "Cafeteria", "Parking Lot"];
@@ -21,8 +17,16 @@ export default function Emergency() {
   // Fetch admin status
   const fetchStatus = async () => {
     try {
-      const resp = await api.get("/emergency/status");
-      const newStatus = resp.data;
+      const resp = await api.get("/api/emergency/"); // updated URL
+      const emergenciesData = resp.data;
+
+      // Convert emergencies list to location-based status
+      const newStatus = {};
+      locations.forEach((loc) => {
+        const found = emergenciesData.find((e) => e.location === loc);
+        newStatus[loc] = found ? found.status : "Safe";
+      });
+
       setStatus(newStatus);
 
       // Announce changes
@@ -43,7 +47,7 @@ export default function Emergency() {
   // Fetch emergency list
   const fetchEmergencies = async () => {
     try {
-      const resp = await getActiveEmergencies();
+      const resp = await api.get("/api/emergency/"); // updated URL
       setEmergencies(resp.data);
     } catch (err) {
       console.error("Failed to fetch emergencies", err);
@@ -68,31 +72,34 @@ export default function Emergency() {
   const handleEmergencySelect = async (type) => {
     setSosLoading(true);
     setShowModal(false);
+
+    const sendSOS = async (lat, lon) => {
+      const data = {
+        user_id: `devotee_${Date.now()}`,
+        latitude: lat,
+        longitude: lon,
+        emergency_type: type,
+        location: locations[0], // or get dynamically
+        status: "Alert",
+      };
+      try {
+        const resp = await api.post("/api/emergency/", data); // updated URL
+        setAlertSent(true);
+        setMyAlertId(resp.data.id);
+        setEmergencies((prev) => [resp.data, ...prev]);
+      } catch (err) {
+        setError("Failed to send SOS. Try again.");
+      } finally {
+        setSosLoading(false);
+      }
+    };
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => sendSOS(type, pos.coords.latitude, pos.coords.longitude),
-        () => sendSOS(type, 20.913, 70.363)
+        (pos) => sendSOS(pos.coords.latitude, pos.coords.longitude),
+        () => sendSOS(20.913, 70.363)
       );
-    } else sendSOS(type, 20.913, 70.363);
-  };
-
-  const sendSOS = async (type, lat, lon) => {
-    const data = {
-      user_id: `devotee_${Date.now()}`,
-      latitude: lat,
-      longitude: lon,
-      emergency_type: type,
-    };
-    try {
-      const resp = await createEmergency(data);
-      setAlertSent(true);
-      setMyAlertId(resp.data.id);
-      setEmergencies((prev) => [resp.data, ...prev]);
-    } catch (err) {
-      setError("Failed to send SOS. Try again.");
-    } finally {
-      setSosLoading(false);
-    }
+    } else sendSOS(20.913, 70.363);
   };
 
   // 🔊 Audio + Speech
@@ -133,11 +140,7 @@ export default function Emergency() {
       <div style={styles.sosCard}>
         <h3>Need Help?</h3>
         <p>Press SOS to send an emergency alert with your location.</p>
-        <button
-          style={styles.sosButton}
-          onClick={handleSosClick}
-          disabled={sosLoading}
-        >
+        <button style={styles.sosButton} onClick={handleSosClick} disabled={sosLoading}>
           {sosLoading ? "Sending..." : "SOS"}
         </button>
         {alertSent && myAlert && (
@@ -192,77 +195,14 @@ export default function Emergency() {
 }
 
 const styles = {
-  sosCard: {
-    background: "#fff",
-    borderRadius: "10px",
-    padding: "25px",
-    textAlign: "center",
-    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
-    marginBottom: "40px",
-  },
-  sosButton: {
-    background: "#e74c3c",
-    color: "#fff",
-    border: "none",
-    borderRadius: "50%",
-    width: "130px",
-    height: "130px",
-    fontSize: "2rem",
-    cursor: "pointer",
-    margin: "20px auto",
-    display: "block",
-  },
-  successMsg: {
-    backgroundColor: "#d4edda",
-    padding: "10px",
-    borderRadius: "8px",
-    color: "#155724",
-  },
-  errorMsg: {
-    backgroundColor: "#f8d7da",
-    padding: "10px",
-    borderRadius: "8px",
-    color: "#721c24",
-  },
-  modalOverlay: {
-    position: "fixed",
-    top: 0, left: 0,
-    width: "100%", height: "100%",
-    background: "rgba(0,0,0,0.5)",
-    display: "flex", justifyContent: "center", alignItems: "center",
-    zIndex: 1000,
-  },
-  modalBox: {
-    background: "#fff",
-    padding: "25px",
-    borderRadius: "10px",
-    width: "350px",
-    textAlign: "center",
-  },
-  options: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-    margin: "15px 0",
-  },
-  optionBtn: {
-    padding: "10px",
-    border: "1px solid #ddd",
-    background: "#f5f5f5",
-    cursor: "pointer",
-  },
-  cancelBtn: {
-    padding: "8px 15px",
-    border: "none",
-    background: "#ccc",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    background: "#fff",
-    borderRadius: "10px",
-    overflow: "hidden",
-  },
+  sosCard: { background: "#fff", borderRadius: "10px", padding: "25px", textAlign: "center", boxShadow: "0 5px 15px rgba(0,0,0,0.1)", marginBottom: "40px" },
+  sosButton: { background: "#e74c3c", color: "#fff", border: "none", borderRadius: "50%", width: "130px", height: "130px", fontSize: "2rem", cursor: "pointer", margin: "20px auto", display: "block" },
+  successMsg: { backgroundColor: "#d4edda", padding: "10px", borderRadius: "8px", color: "#155724" },
+  errorMsg: { backgroundColor: "#f8d7da", padding: "10px", borderRadius: "8px", color: "#721c24" },
+  modalOverlay: { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 },
+  modalBox: { background: "#fff", padding: "25px", borderRadius: "10px", width: "350px", textAlign: "center" },
+  options: { display: "flex", flexDirection: "column", gap: "10px", margin: "15px 0" },
+  optionBtn: { padding: "10px", border: "1px solid #ddd", background: "#f5f5f5", cursor: "pointer" },
+  cancelBtn: { padding: "8px 15px", border: "none", background: "#ccc", borderRadius: "5px", cursor: "pointer" },
+  table: { width: "100%", borderCollapse: "collapse", background: "#fff", borderRadius: "10px", overflow: "hidden" },
 };

@@ -68,12 +68,13 @@ app.include_router(users.router)
 app.include_router(evacuation.router)
 app.include_router(navigation.router)
 app.include_router(priority.router)
-app.include_router(accessibility.router)
+app.include_router(accessibility.router, prefix='/accessibility')
 app.include_router(crowd_prediction.router)
 app.include_router(traffic.router)
-app.include_router(queue.router)
+app.include_router(queue.router, prefix='/queue')
 
 # Health Check
+
 @app.get("/")
 def root():
     return {"status": "Backend running successfully 🚀"}

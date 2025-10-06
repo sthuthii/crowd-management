@@ -175,7 +175,7 @@ const Accessibility = forwardRef(({ textSize, highContrast, language = "en-US" }
   const handleEmergencyClick = () => {
     stopSpeaking();
     speak("Emergency! Please follow the nearest exit immediately.", language);
-    alert("🚨 Emergency Alert! Security has been notified.");
+    alert("Emergency Alert! Security has been notified.");
     navigator.vibrate?.(200);
     setActiveRoute(null);
     setSelectedRoute(null);
@@ -240,7 +240,7 @@ const Accessibility = forwardRef(({ textSize, highContrast, language = "en-US" }
 
       <div style={{ marginTop: "20px", textAlign: "center" }}>
         <button className="sos-button p-3 rounded bg-red-600 text-white" onClick={handleEmergencyClick} aria-label="Emergency SOS">
-          🚨 SOS / Emergency
+          SOS / Emergency
         </button>
       </div>
 

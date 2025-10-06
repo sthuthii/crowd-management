@@ -18,9 +18,9 @@ export default function Traffic() {
   const fetchTraffic = async () => {
     try {
       const [parkingResp, shuttlesResp, advisoryResp] = await Promise.all([
-        api.get("/traffic/parking"),
-        api.get("/traffic/shuttle"),
-        api.get("/traffic/traffic-advisory")
+        api.get("/parking"),
+        api.get("/shuttle"),
+        api.get("/traffic-advisory")
       ]);
 
       setParking(parkingResp.data);

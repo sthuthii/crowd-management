@@ -23,8 +23,8 @@ api.interceptors.request.use(
 // ==============================
 // EMERGENCY SERVICES
 // ==============================
-export const createEmergency = (data) => api.post("/emergency/", data);
-export const getActiveEmergencies = () => api.get("/emergency/");
+export const createEmergency = (data) => api.post("api/emergency/", data);
+export const getActiveEmergencies = () => api.get("api/emergency/");
 export const updateEmergency = (id, data) => api.put(`/emergency/${id}`, data);
 
 // ==============================
@@ -37,8 +37,8 @@ export const updateLostAndFoundItem = (id, data) => api.put(`/lost-and-found/${i
 // ==============================
 // ALERTS
 // ==============================
-export const getActiveAlerts = () => api.get("/alerts/");
-export const createAlert = (data) => api.post("/alerts/", data);
+export const getActiveAlerts = () => api.get("api/alerts/");
+export const createAlert = (data) => api.post("api/alerts/", data);
 
 // ==============================
 // PRIORITY / NAVIGATION

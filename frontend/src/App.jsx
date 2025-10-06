@@ -1,5 +1,5 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom"; // Removed BrowserRouter import
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import "./styles/global.css";
@@ -33,7 +33,7 @@ function App() {
   const accessibilityRef = useRef(null);
 
   return (
-    <Router>
+    <>
       <Navbar />
       <AlertsDisplay />
 
@@ -89,36 +89,16 @@ function App() {
           <Route path="*" element={<h1>404 - Page Not Found</h1>} />
         </Routes>
       </div>
-    </Router>
+    </>
   );
 }
 
 const AccessibilityWrapper = forwardRef(({ textSize, highContrast, speak }, ref) => {
   const routes = [
-    {
-      id: 1,
-      name: "Main Entrance to Darshan Hall",
-      coords: [12.915, 74.856],
-      info: "Wide ramp available",
-    },
-    {
-      id: 2,
-      name: "Ramp to Temple Garden",
-      coords: [12.916, 74.857],
-      info: "Gentle slope",
-    },
-    {
-      id: 3,
-      name: "Accessible Restroom",
-      coords: [12.917, 74.858],
-      info: "Near the garden exit",
-    },
-    {
-      id: 4,
-      name: "Prayer Hall Ramp",
-      coords: [12.914, 74.855],
-      info: "Handrails on both sides",
-    },
+    { id: 1, name: "Main Entrance to Darshan Hall", coords: [12.915, 74.856], info: "Wide ramp available" },
+    { id: 2, name: "Ramp to Temple Garden", coords: [12.916, 74.857], info: "Gentle slope" },
+    { id: 3, name: "Accessible Restroom", coords: [12.917, 74.858], info: "Near the garden exit" },
+    { id: 4, name: "Prayer Hall Ramp", coords: [12.914, 74.855], info: "Handrails on both sides" },
   ];
 
   const accessibilityRefInner = useRef(null);

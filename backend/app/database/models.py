@@ -78,7 +78,8 @@ class CrowdPredictionRecord(Base):
     source = Column(String)  # e.g., camera id or filename
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     count = Column(Integer)
-    metadata = Column(Text)
+    meta_info = Column(Text)  # Renamed from 'metadata'
+
 
 # -----------------------------
 # Traffic
