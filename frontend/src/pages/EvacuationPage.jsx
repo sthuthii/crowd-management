@@ -7,34 +7,40 @@ const EvacuationPage = () => {
     const [error, setError] = useState('');
 
     const findExits = () => {
-        setIsLoading(true);
-        setError('');
-        setExits([]);
+    console.log("1. 'Find Exits' button clicked.");
+    setIsLoading(true);
+    setError('');
+    setExits([]);
 
-        if (!navigator.geolocation) {
-            setError("Geolocation is not supported by your browser.");
-            setIsLoading(false);
-            return;
-        }
+    if (!navigator.geolocation) {
+        console.error("Error: Geolocation is not supported.");
+        setError("Geolocation is not supported by your browser.");
+        setIsLoading(false);
+        return;
+    }
 
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                try {
-                    const response = await getNearbyExits(position.coords.latitude, position.coords.longitude);
-                    setExits(response.data);
-                } catch (err) {
-                    setError(err.response?.data?.detail || "Could not find exits for your location.");
-                } finally {
-                    setIsLoading(false);
-                }
-            },
-            () => {
-                setError("Unable to retrieve your location. Please enable location services.");
+    console.log("2. Asking browser for location...");
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            console.log("3. Success! Location received:", position.coords);
+            try {
+                const response = await getNearbyExits(position.coords.latitude, position.coords.longitude);
+                console.log("4. API call successful. Exits found:", response.data);
+                setExits(response.data);
+            } catch (err) {
+                console.error("5. API call failed:", err);
+                setError(err.response?.data?.detail || "Could not find exits for your location.");
+            } finally {
                 setIsLoading(false);
             }
-        );
-    };
-
+        },
+        (geoError) => {
+            console.error("Error getting location:", geoError.message);
+            setError("Unable to retrieve your location. Please enable location services in your browser/OS.");
+            setIsLoading(false);
+        }
+    );
+};
     return (
         <div className="card text-center">
             <div className="card-header">
