@@ -1,128 +1,139 @@
 import React from "react";
 import useQueues from "../hooks/useQueues";
 
+// Helper function to determine the status color and text based on queue length
+const getQueueStatus = (normal, priority) => {
+  const total = normal + priority;
+  if (total > 10) {
+    return { text: "Very Busy", color: "#e53935" }; // Red
+  }
+  if (total > 5) {
+    return { text: "Busy", color: "#fdd835" }; // Yellow
+  }
+  return { text: "Not Busy", color: "#43a047" }; // Green
+};
+
+// Helper function to calculate an estimated wait time (in minutes)
+const getWaitTime = (normal, priority) => {
+  // A simple estimation logic: 1.5 mins for each person in the normal queue
+  // and 1 min for each person in the priority queue.
+  const wait = Math.round(normal * 1.5 + priority * 1);
+  return wait > 0 ? `~${wait} min` : "No Wait";
+};
+
 export default function QueueDashboard({ language }) {
   const { queues, joinQueue, serveNext, loading, error } = useQueues(language);
 
   if (loading)
-    return <p style={{ textAlign: "center", fontSize: 18 }}>Loading queues...</p>;
+    return <p style={{ textAlign: "center", fontSize: 18 }}>Loading queue information...</p>;
   if (error)
     return (
       <p style={{ textAlign: "center", color: "red", fontSize: 18 }}>{error}</p>
     );
   if (!Object.keys(queues).length)
     return (
-      <p style={{ textAlign: "center", fontSize: 18 }}>No queue data available</p>
+      <p style={{ textAlign: "center", fontSize: 18 }}>No queue data is currently available.</p>
     );
 
   return (
-    <div className="queue-dashboard p-4">
-      <h2 style={{ fontSize: "1.8em", marginBottom: "1rem" }}>
-        Queue Management & Stats
-      </h2>
+    <div style={styles.container}>
+      <h1 style={styles.title}>Live Queue Status</h1>
 
-      {/* Queue Controls */}
-      {Object.entries(queues).map(([location, counts]) => (
-        <div
-          key={location}
-          className="mb-4 p-4 border rounded shadow-sm"
-          style={{ fontSize: 18 }}
-        >
-          <h3 className="font-semibold mb-2">{location}</h3>
-          <div className="flex gap-4 mb-3">
-            <div>Normal Queue: {counts.normal}</div>
-            <div>Priority Queue: {counts.priority}</div>
-          </div>
-          <div className="flex gap-3 flex-wrap">
-            <button
-              onClick={() => joinQueue(location, "normal")}
-              style={{
-                padding: "10px 15px",
-                fontSize: 16,
-                backgroundColor: "#52c41a",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                cursor: "pointer",
-              }}
-            >
-              Join Normal
-            </button>
-            <button
-              onClick={() => joinQueue(location, "priority")}
-              style={{
-                padding: "10px 15px",
-                fontSize: 16,
-                backgroundColor: "#faad14",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                cursor: "pointer",
-              }}
-            >
-              Join Priority
-            </button>
-            <button
-              onClick={() => serveNext(location, "normal")}
-              style={{
-                padding: "10px 15px",
-                fontSize: 16,
-                backgroundColor: "#1890ff",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                cursor: "pointer",
-              }}
-            >
-              Serve Normal
-            </button>
-            <button
-              onClick={() => serveNext(location, "priority")}
-              style={{
-                padding: "10px 15px",
-                fontSize: 16,
-                backgroundColor: "#f5222d",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                cursor: "pointer",
-              }}
-            >
-              Serve Priority
-            </button>
-          </div>
-        </div>
-      ))}
-
-      {/* Live Queue Stats Summary */}
-      <div className="mt-8 border-t pt-4">
-        <h3 style={{ fontSize: "1.4em", marginBottom: "0.5rem" }}>Queue Summary</h3>
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            fontSize: 16,
-            textAlign: "center",
-          }}
-        >
-          <thead>
-            <tr style={{ backgroundColor: "#f0f0f0" }}>
-              <th style={{ padding: 8, border: "1px solid #ddd" }}>Location</th>
-              <th style={{ padding: 8, border: "1px solid #ddd" }}>Normal Queue</th>
-              <th style={{ padding: 8, border: "1px solid #ddd" }}>Priority Queue</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(queues).map(([location, counts]) => (
-              <tr key={location}>
-                <td style={{ padding: 8, border: "1px solid #ddd" }}>{location}</td>
-                <td style={{ padding: 8, border: "1px solid #ddd" }}>{counts.normal}</td>
-                <td style={{ padding: 8, border: "1px solid #ddd" }}>{counts.priority}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div style={styles.grid}>
+        {Object.entries(queues).map(([location, counts]) => {
+          const status = getQueueStatus(counts.normal, counts.priority);
+          const waitTime = getWaitTime(counts.normal, counts.priority);
+          
+          return (
+            <div key={location} style={styles.card}>
+              <div style={{ ...styles.cardHeader, backgroundColor: status.color }}>
+                <h3 style={styles.locationTitle}>{location}</h3>
+                <span style={styles.statusBadge}>{status.text}</span>
+              </div>
+              <div style={styles.cardBody}>
+                <div style={styles.infoRow}>
+                  <span style={styles.infoLabel}>👨‍👩‍👧‍👦 Normal Queue:</span>
+                  <span style={styles.infoValue}>{counts.normal} people</span>
+                </div>
+                <div style={styles.infoRow}>
+                  <span style={styles.infoLabel}>⭐ Priority Queue:</span>
+                  <span style={styles.infoValue}>{counts.priority} people</span>
+                </div>
+                <div style={styles.infoRow}>
+                  <span style={styles.infoLabel}>⏳ Est. Wait Time:</span>
+                  <span style={styles.infoValue}>{waitTime}</span>
+                </div>
+              </div>
+              {/* Optional: Add admin controls back if needed */}
+              {/* <div style={styles.cardFooter}>
+                <button onClick={() => joinQueue(location, "normal")}>Join Normal</button>
+                <button onClick={() => serveNext(location, "normal")}>Serve Next</button>
+              </div> */}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
+
+// --- Styles ---
+const styles = {
+  container: {
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    padding: "20px",
+    backgroundColor: "#f4f7f9",
+  },
+  title: {
+    textAlign: "center",
+    color: "#2c3e50",
+    marginBottom: "30px",
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+    gap: "20px",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: "12px",
+    boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
+    overflow: "hidden",
+    transition: "transform 0.2s",
+  },
+  cardHeader: {
+    padding: "15px 20px",
+    color: "white",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  locationTitle: {
+    margin: 0,
+    fontSize: "1.25rem",
+  },
+  statusBadge: {
+    backgroundColor: "rgba(0,0,0,0.2)",
+    padding: "4px 10px",
+    borderRadius: "12px",
+    fontSize: "0.8rem",
+    fontWeight: "bold",
+  },
+  cardBody: {
+    padding: "20px",
+  },
+  infoRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "12px",
+    fontSize: "1rem",
+  },
+  infoLabel: {
+    color: "#555",
+  },
+  infoValue: {
+    color: "#333",
+    fontWeight: "bold",
+  },
+};

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { speak } from "../services/tts";
+// I've removed the import for the 'speak' service as it's no longer needed.
 
 export default function useQueues(language = "en-US") {
   const [queues, setQueues] = useState({});
@@ -8,12 +8,7 @@ export default function useQueues(language = "en-US") {
   const [error, setError] = useState(null);
 
   const prevQueuesRef = useRef({});
-  const speechQueueRef = useRef([]);
-  const isSpeakingRef = useRef(false);
-
-  // Thresholds for friendly alerts
-  const thresholdBusy = 5;
-  const thresholdFull = 10;
+  // Speech-related refs are no longer needed.
 
   const fetchQueues = async () => {
     setLoading(true);
@@ -22,33 +17,7 @@ export default function useQueues(language = "en-US") {
       const newQueues = res.data || {};
       setQueues(newQueues);
 
-      // Announce changes & busy/full alerts
-      Object.keys(newQueues).forEach((loc) => {
-        const prev = prevQueuesRef.current[loc] || { normal: 0, priority: 0 };
-        const curr = newQueues[loc];
-
-        // Announce normal/priority changes
-        if (prev.normal !== curr.normal) {
-          enqueueSpeech(`${loc} normal queue is now ${curr.normal}`);
-        }
-        if (prev.priority !== curr.priority) {
-          enqueueSpeech(`${loc} priority queue is now ${curr.priority}`);
-        }
-
-        // Announce if queue is busy or full
-        if (
-          (prev.normal < thresholdBusy && curr.normal >= thresholdBusy) ||
-          (prev.priority < thresholdBusy && curr.priority >= thresholdBusy)
-        ) {
-          enqueueSpeech(`${loc} is getting busy. Expect some wait time.`);
-        }
-        if (
-          (prev.normal < thresholdFull && curr.normal >= thresholdFull) ||
-          (prev.priority < thresholdFull && curr.priority >= thresholdFull)
-        ) {
-          enqueueSpeech(`${loc} is full. Please wait or try another location.`);
-        }
-      });
+      // All speech-related logic has been removed from here.
 
       prevQueuesRef.current = newQueues;
       setError(null);
@@ -60,24 +29,7 @@ export default function useQueues(language = "en-US") {
     }
   };
 
-  const enqueueSpeech = (text) => {
-    speechQueueRef.current.push(text);
-    speakNext();
-  };
-
-  const speakNext = () => {
-    if (isSpeakingRef.current) return;
-    if (speechQueueRef.current.length === 0) return;
-
-    const text = speechQueueRef.current.shift();
-    isSpeakingRef.current = true;
-
-    speak(text, language)
-      .finally(() => {
-        isSpeakingRef.current = false;
-        setTimeout(() => speakNext(), 200); // small delay between messages
-      });
-  };
+  // The 'enqueueSpeech' and 'speakNext' functions have been removed.
 
   useEffect(() => {
     fetchQueues();
@@ -88,7 +40,7 @@ export default function useQueues(language = "en-US") {
   const joinQueue = async (location, type) => {
     try {
       const res = await axios.post("http://127.0.0.1:8000/queue/join", { location, type });
-      enqueueSpeech(`You joined the ${type} queue at ${location}`);
+      // The call to enqueueSpeech has been removed.
       fetchQueues();
       return res.data;
     } catch (err) {
@@ -101,7 +53,7 @@ export default function useQueues(language = "en-US") {
   const serveNext = async (location, type) => {
     try {
       const res = await axios.post("http://127.0.0.1:8000/queue/serve", { location, type });
-      enqueueSpeech(`Next person served from ${type} queue at ${location}`);
+      // The call to enqueueSpeech has been removed.
       fetchQueues();
       return res.data;
     } catch (err) {

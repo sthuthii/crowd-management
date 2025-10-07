@@ -15,7 +15,6 @@ export default function AccessibilityMenu({
   const [recognition, setRecognition] = useState(null);
   const [routesList, setRoutesList] = useState([]);
   const [language, setLanguage] = useState(defaultLang);
-  const [slots, setSlots] = useState([]);
   const [expanded, setExpanded] = useState(false);
 
   // Fetch routes
@@ -24,7 +23,7 @@ export default function AccessibilityMenu({
       try {
         const [accessRes, priorityRes] = await Promise.all([
           axios.get("http://127.0.0.1:8000/accessibility/accessibility"),
-          axios.get("http://127.0.0.1:8000/priority/priority/"),
+          axios.get("http://127.0.0.1:8000/priority/"),
         ]);
         const accessRoutes = Object.keys(accessRes.data);
         const priorityRoutes = priorityRes.data.map((r) => r.name);
@@ -36,20 +35,10 @@ export default function AccessibilityMenu({
     fetchRoutes();
   }, []);
 
-  // Fetch darshan slots
-  useEffect(() => {
-    const fetchSlots = async () => {
-      try {
-        const res = await axios.get("http://127.0.0.1:8000/darshan-slots");
-        setSlots(res.data);
-      } catch (err) {
-        console.error("Error fetching darshan slots:", err);
-      }
-    };
-    fetchSlots();
-  }, []);
+  // I have removed the useEffect hook that was trying to fetch /darshan-slots
+  // as that endpoint does not exist and was causing a 404 error.
 
-  // Voice recognition setup (omitted for brevity; same as before)
+  // Voice recognition setup
   useEffect(() => {
     if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window))
       return;
@@ -189,7 +178,7 @@ export default function AccessibilityMenu({
           <div style={{ display: "flex", gap: "5px", marginTop: "5px", flexWrap: "wrap" }}>
             <button onClick={() => setLanguage("en-US")} style={btnStyle}>English</button>
             <button onClick={() => setLanguage("hi-IN")} style={btnStyle}>हिंदी</button>
-            <button onClick={() => setLanguage("ta-IN")} style={btnStyle}>தமிழ்</button>
+            <button onClick={() => setLanguage("gu-IN")} style={btnStyle}>ગુજરાતી</button>
           </div>
 
           <button

@@ -81,9 +81,9 @@ export const loginUser = (username, password) => {
 export const createUser = (userData) => api.post("/users/", userData);
 
 // ==============================
-// EVACUATION
+// EVACUATION (Corrected URL)
 // ==============================
 export const getNearbyExits = (lat, lon) =>
-  api.get(`/evacuation/exits-near-me?lat=${lat}&lon=${lon}`);
+  api.get(`/api/evacuation/exits-near-me?lat=${lat}&lon=${lon}`); // <-- THIS LINE IS NOW FIXED
 
 export default api;
