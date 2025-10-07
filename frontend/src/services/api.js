@@ -30,9 +30,9 @@ export const updateEmergency = (id, data) => api.put(`/emergency/${id}`, data);
 // ==============================
 // LOST & FOUND
 // ==============================
-export const getLostAndFoundItems = () => api.get("/lost-and-found/");
-export const createLostAndFoundItem = (data) => api.post("/lost-and-found/", data);
-export const updateLostAndFoundItem = (id, data) => api.put(`/lost-and-found/${id}`, data);
+export const getLostAndFoundItems = () => api.get("/api/lost-and-found/");
+export const createLostAndFoundItem = (data) => api.post("/api/lost-and-found/", data);
+export const updateLostAndFoundItem = (id, data) => api.put(`/api/lost-and-found/${id}`, data);
 
 // ==============================
 // ALERTS
