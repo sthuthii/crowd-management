@@ -83,7 +83,8 @@ export const createUser = (userData) => api.post("/users/", userData);
 // ==============================
 // EVACUATION
 // ==============================
-export const getNearbyExits = (lat, lon) =>
-  api.get(`/evacuation/exits-near-me?lat=${lat}&lon=${lon}`);
+export const getNearbyExits = (lat, lon) => {
+ return api.get(`/api/evacuation/exits-near-me?lat=${lat}&lon=${lon}`);
+};
 
 export default api;
