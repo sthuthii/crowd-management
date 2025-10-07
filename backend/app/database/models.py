@@ -68,6 +68,10 @@ class Exit(Base):
     name = Column(String, index=True)
     zone_id = Column(Integer, ForeignKey("zones.id"))
     zone = relationship("Zone", back_populates="exits")
+    # --- ADDED THESE TWO LINES ---
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
 
 # -----------------------------
 # Crowd Prediction

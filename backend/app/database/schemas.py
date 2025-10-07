@@ -26,13 +26,13 @@ class LostAndFoundItem(LostAndFoundItemBase):
     status: str
 
     class Config:
-        from_attributes = True # <-- CHANGE HERE
+        from_attributes = True
 
 # --- Emergency Schemas ---
 class EmergencyBase(BaseModel):
     user_id: str
-    latitude: Optional[float] = None  # <-- CHANGE HERE
-    longitude: Optional[float] = None # <-- CHANGE HERE
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     emergency_type: Optional[str] = "General"
     notes: Optional[str] = None
 
@@ -49,11 +49,9 @@ class Emergency(EmergencyBase):
     status: str
 
     class Config:
-        from_attributes = True # <-- AND CHANGE HERE
+        from_attributes = True
 
-  # ... (at the end of the file)
-
-# --- Alert Schemas (NEW) ---
+# --- Alert Schemas ---
 class AlertBase(BaseModel):
     message: str
     severity: str = "info"
@@ -66,12 +64,10 @@ class Alert(AlertBase):
     timestamp: datetime
 
     class Config:
-        from_attributes = True 
+        from_attributes = True
 
 
-# ... Authentication and authorisation
-
-# --- User Schemas (NEW) ---
+# --- User Schemas ---
 class UserBase(BaseModel):
     username: str
 
@@ -86,8 +82,7 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
-#authentication&authorization in react app
-# --- Token Schemas (NEW) ---
+# --- Token Schemas ---
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -96,10 +91,12 @@ class TokenData(BaseModel):
     username: Optional[str] = None
 
 
-
-# --- Exit Schema (NEW) ---
+# --- Exit Schema (UPDATED) ---
 class Exit(BaseModel):
     name: str
+    # --- ADDED THESE TWO LINES ---
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
     class Config:
-        from_attributes = True    
+        from_attributes = True

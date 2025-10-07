@@ -3,19 +3,36 @@
 let currentUtterance = null;
 
 export function speak(text, lang = "en-US") {
-  if (!("speechSynthesis" in window)) return console.warn("TTS not supported");
+  // Wrap the speech synthesis in a Promise
+  return new Promise((resolve, reject) => {
+    if (!("speechSynthesis" in window)) {
+      console.warn("TTS not supported");
+      resolve(); // Resolve the promise even if TTS is not supported
+      return;
+    }
 
-  // Cancel any ongoing speech before starting new
-  if (currentUtterance) window.speechSynthesis.cancel();
+    if (currentUtterance) {
+      window.speechSynthesis.cancel();
+    }
 
-  currentUtterance = new SpeechSynthesisUtterance(text);
-  currentUtterance.lang = lang;
+    currentUtterance = new SpeechSynthesisUtterance(text);
+    currentUtterance.lang = lang;
 
-  currentUtterance.onend = () => {
-    currentUtterance = null;
-  };
+    // When the speech ends, resolve the promise
+    currentUtterance.onend = () => {
+      currentUtterance = null;
+      resolve();
+    };
 
-  window.speechSynthesis.speak(currentUtterance);
+    // If there's an error, reject the promise
+    currentUtterance.onerror = (event) => {
+      console.error("SpeechSynthesisUtterance.onerror", event);
+      currentUtterance = null;
+      reject(event);
+    };
+
+    window.speechSynthesis.speak(currentUtterance);
+  });
 }
 
 export function stopSpeaking() {
