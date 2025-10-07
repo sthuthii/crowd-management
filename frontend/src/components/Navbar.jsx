@@ -1,43 +1,38 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
+import { FaBars, FaTimes } from "react-icons/fa"; // Icons for the burger menu
+import "./Navbar.css";
 
-export default function Navbar() {
-  const location = useLocation();
+const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navItems = [
-    { name: "Home", path: "/" },
-    { name: "Dashboard", path: "/dashboard" },
-    /*{ name: "Prediction", path: "/prediction" },*/
-    { name: "Traffic", path: "/traffic" },
-    { name: "Queue", path: "/queue" },
-    { name: "Accessibility", path: "/accessibility" },
-    { name: "Emergency", path: "/emergency" },
-    {name : "Lost and Found", path : "/lost-and-found"},
-    {name : "Evacuation", path : "/evacuation"},
-
-  ];
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   return (
-    <nav className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 to-purple-600 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex space-x-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.path}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition duration-300 ${
-                  location.pathname === item.path
-                    ? "bg-white text-indigo-700 font-semibold"
-                    : "text-white hover:bg-white hover:text-indigo-700"
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
+    <nav className="main-navbar">
+      <NavLink to="/" className="navbar-brand">
+        DarshanSahay
+      </NavLink>
+
+      <ul className={isMobileMenuOpen ? "nav-links mobile-active" : "nav-links"}>
+        {/* Add onClick to close menu when a link is clicked on mobile */}
+        <li><NavLink to="/dashboard" onClick={toggleMobileMenu}>Dashboard</NavLink></li>
+        <li><NavLink to="/traffic" onClick={toggleMobileMenu}>Traffic</NavLink></li>
+        <li><NavLink to="/queue" onClick={toggleMobileMenu}>Queue</NavLink></li>
+        <li><NavLink to="/accessibility" onClick={toggleMobileMenu}>Accessibility</NavLink></li>
+        <li><NavLink to="/emergency" onClick={toggleMobileMenu}>Emergency</NavLink></li>
+        <li><NavLink to="/lost-and-found" onClick={toggleMobileMenu}>Lost and Found</NavLink></li>
+        <li><NavLink to="/evacuation" onClick={toggleMobileMenu}>Evacuation</NavLink></li>
+      </ul>
+
+      <button className="navbar-burger" onClick={toggleMobileMenu}>
+        {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+      </button>
     </nav>
   );
-}
+};
+
+export default Navbar;
+
