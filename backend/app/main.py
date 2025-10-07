@@ -1,8 +1,20 @@
 from fastapi import FastAPI
+import asyncio
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.database import models
+from app.database.db import engine
+
+# Routers
 from app.routers import (
     emergency,
+    lost_and_found,
+    alerts,
+    sms,
+    users,
+    auth,
+    evacuation,
     navigation,
     priority,
     accessibility,
@@ -11,22 +23,58 @@ from app.routers import (
     queue
 )
 
-app = FastAPI(title="Crowd Management System")
+# Services
+from app.services.traffic import run_traffic_simulation
 
-# ---------------- Middleware ----------------
+# Create all database tables
+models.Base.metadata.create_all(bind=engine)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start background tasks like traffic simulation
+    asyncio.create_task(run_traffic_simulation())
+    yield
+
+
+app = FastAPI(
+    title="Crowd Management System API",
+    description="API for TirthaSaathi App and Admin Dashboard",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# Middleware
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow all origins
+    allow_origins=origins,      # change later if needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ---------------- Routers ----------------
-app.include_router(emergency.router, prefix="/emergency", tags=["Emergency"])
-app.include_router(navigation.router, prefix="/navigation", tags=["Navigation"])
-app.include_router(priority.router, prefix="/priority", tags=["Priority"])
-app.include_router(accessibility.router, prefix="/accessibility", tags=["Accessibility"])
+# Include API routers
+app.include_router(auth.router)
+app.include_router(emergency.router)
+app.include_router(lost_and_found.router)
+app.include_router(alerts.router)
+app.include_router(sms.router)
+app.include_router(users.router)
+app.include_router(evacuation.router)
+app.include_router(navigation.router)
+app.include_router(priority.router)
+app.include_router(accessibility.router, prefix='/accessibility')
 app.include_router(crowd_prediction.router)
-app.include_router(traffic.router, prefix="/traffic", tags=["Traffic"])
-app.include_router(queue.router, prefix="/queue", tags=["Queue"])
+app.include_router(traffic.router)
+app.include_router(queue.router, prefix='/queue')
+
+# Health Check
+
+@app.get("/")
+def root():
+    return {"status": "Backend running successfully 🚀"}
