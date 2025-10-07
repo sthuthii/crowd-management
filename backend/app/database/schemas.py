@@ -1,11 +1,50 @@
-# backend/app/database/schemas.py
-
-from pydantic import BaseModel,Field
+from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
 
+# ==========================
+# 🔹 Queue Ticketing Schemas
+# ==========================
+class User(BaseModel):
+    id: int
+    username: str
+    class Config:
+        from_attributes = True
 
-# --- Lost and Found Schemas ---
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
+
+class Queue(BaseModel):
+    id: str
+    name: str
+    wait_time_minutes: int
+    status: str
+
+class PassCreate(BaseModel):
+    queue_id: str
+    number_of_people: int
+
+class DigitalPass(BaseModel):
+    pass_id: str
+    queue_name: str
+    assigned_slot: datetime
+    qr_code_url: str
+    owner: User
+    class Config:
+        from_attributes = True
+
+
+# ==========================
+# 🔹 Lost and Found Schemas
+# ==========================
 class LostAndFoundItemBase(BaseModel):
     item_name: str
     category: str
@@ -26,13 +65,16 @@ class LostAndFoundItem(LostAndFoundItemBase):
     status: str
 
     class Config:
-        from_attributes = True # <-- CHANGE HERE
+        from_attributes = True
 
-# --- Emergency Schemas ---
+
+# ==========================
+# 🔹 Emergency Schemas
+# ==========================
 class EmergencyBase(BaseModel):
     user_id: str
-    latitude: Optional[float] = None  # <-- CHANGE HERE
-    longitude: Optional[float] = None # <-- CHANGE HERE
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     emergency_type: Optional[str] = "General"
     notes: Optional[str] = None
 
@@ -49,11 +91,12 @@ class Emergency(EmergencyBase):
     status: str
 
     class Config:
-        from_attributes = True # <-- AND CHANGE HERE
+        from_attributes = True
 
-  # ... (at the end of the file)
 
-# --- Alert Schemas (NEW) ---
+# ==========================
+# 🔹 Alert Schemas
+# ==========================
 class AlertBase(BaseModel):
     message: str
     severity: str = "info"
@@ -66,40 +109,39 @@ class Alert(AlertBase):
     timestamp: datetime
 
     class Config:
-        from_attributes = True 
+        from_attributes = True
 
 
-# ... Authentication and authorisation
-
-# --- User Schemas (NEW) ---
+# ==========================
+# 🔹 User + Auth Schemas
+# ==========================
 class UserBase(BaseModel):
     username: str
 
-class UserCreate(UserBase):
+class UserCreateAuth(UserBase):
     password: str = Field(..., min_length=8, max_length=72)
     role: str = "admin"
 
-class User(UserBase):
+class UserAuth(UserBase):
     id: int
     role: str
 
     class Config:
         from_attributes = True
 
-#authentication&authorization in react app
-# --- Token Schemas (NEW) ---
-class Token(BaseModel):
+class TokenAuth(BaseModel):
     access_token: str
     token_type: str
 
-class TokenData(BaseModel):
+class TokenDataAuth(BaseModel):
     username: Optional[str] = None
 
 
-
-# --- Exit Schema (NEW) ---
+# ==========================
+# 🔹 Exit Schema
+# ==========================
 class Exit(BaseModel):
     name: str
 
     class Config:
-        from_attributes = True    
+        from_attributes = True

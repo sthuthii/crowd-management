@@ -5,9 +5,7 @@ const API_BASE_URL = "http://127.0.0.1:8000"; // Adjust if running elsewhere
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
 // Interceptor — adds Authorization token if present
@@ -21,11 +19,29 @@ api.interceptors.request.use(
 );
 
 // ==============================
+// AUTHENTICATION
+// ==============================
+export const loginUser = (username, password) => {
+  const body = `grant_type=password&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+  return api.post("/token", body, {
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  });
+};
+export const createUser = (userData) => api.post("/users/", userData);
+
+// ==============================
+// QUEUE & TICKETING
+// ==============================
+export const getQueues = () => api.get("/api/queues");
+export const bookPass = (passData) => api.post("/api/passes", passData);
+export const getMyPass = () => api.get("/api/passes/me");
+
+// ==============================
 // EMERGENCY SERVICES
 // ==============================
-export const createEmergency = (data) => api.post("api/emergency/", data);
-export const getActiveEmergencies = () => api.get("api/emergency/");
-export const updateEmergency = (id, data) => api.put(`/emergency/${id}`, data);
+export const createEmergency = (data) => api.post("/api/emergency/", data);
+export const getActiveEmergencies = () => api.get("/api/emergency/");
+export const updateEmergency = (id, data) => api.put(`/api/emergency/${id}`, data);
 
 // ==============================
 // LOST & FOUND
@@ -37,8 +53,8 @@ export const updateLostAndFoundItem = (id, data) => api.put(`/lost-and-found/${i
 // ==============================
 // ALERTS
 // ==============================
-export const getActiveAlerts = () => api.get("api/alerts/");
-export const createAlert = (data) => api.post("api/alerts/", data);
+export const getActiveAlerts = () => api.get("/api/alerts/");
+export const createAlert = (data) => api.post("/api/alerts/", data);
 
 // ==============================
 // PRIORITY / NAVIGATION
@@ -67,18 +83,6 @@ export const getAccessibilityInfo = () => api.get("/accessibility/accessibility"
 // TRAFFIC
 // ==============================
 export const getTrafficData = () => api.get("/traffic/");
-
-// ==============================
-// AUTHENTICATION
-// ==============================
-export const loginUser = (username, password) => {
-  const body = `grant_type=password&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-  return api.post("/token", body, {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  });
-};
-
-export const createUser = (userData) => api.post("/users/", userData);
 
 // ==============================
 // EVACUATION

@@ -1,5 +1,5 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
-import { Routes, Route } from "react-router-dom"; // Removed BrowserRouter import
+import { Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import "./styles/global.css";
@@ -58,21 +58,19 @@ function App() {
         style={{ fontSize: `${textSize}px` }}
       >
         <Routes>
+          {/* --- Main Pages --- */}
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/prediction" element={<Prediction />} />
           <Route path="/traffic" element={<Traffic />} />
-          <Route
-            path="/accessibility"
-            element={
-              <AccessibilityWrapper
-                ref={accessibilityRef}
-                textSize={textSize}
-                highContrast={highContrast}
-                speak={ttsSpeak}
-              />
-            }
-          />
+          <Route path="/accessibility" element={
+            <AccessibilityWrapper
+              ref={accessibilityRef}
+              textSize={textSize}
+              highContrast={highContrast}
+              speak={ttsSpeak}
+            />
+          }/>
           <Route path="/emergency" element={<Emergency />} />
           <Route path="/lost-and-found" element={<LostAndFound />} />
           <Route path="/login" element={<LoginPage />} />
@@ -85,7 +83,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* --- Queue Ticketing Feature --- */}
           <Route path="/queue" element={<QueueDashboard language="en-US" />} />
+
+          {/* --- Fallback --- */}
           <Route path="*" element={<h1>404 - Page Not Found</h1>} />
         </Routes>
       </div>
