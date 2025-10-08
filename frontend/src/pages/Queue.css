@@ -1,0 +1,14 @@
+
+.queue-page {
+  background-color: var(--background-color, #f4f6f8); 
+  font-family: var(--font-family);
+  padding: 2rem;
+}
+
+.queue-section {
+  background-color: var(--card-background, #ffffff);
+  border-radius: var(--border-radius, 12px);
+  box-shadow: var(--box-shadow, 0 4px 12px rgba(0, 0, 0, 0.08));
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
