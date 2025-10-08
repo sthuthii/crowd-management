@@ -1,5 +1,8 @@
+// src/pages/Emergency.jsx - (Complete and Corrected Version)
+
 import React, { useState, useEffect, useRef } from "react";
 import api from "../services/api";
+import './Emergency.css'; // Import the custom CSS
 
 const locations = ["Main Hall", "Temple Gate", "Cafeteria", "Parking Lot"];
 
@@ -14,22 +17,18 @@ export default function Emergency() {
   const prevStatusRef = useRef({});
   const alertRef = useRef(false);
 
-  // Fetch admin status
+  // --- START OF LOGIC FUNCTIONS ---
+
   const fetchStatus = async () => {
     try {
-      const resp = await api.get("/api/emergency/"); // updated URL
+      const resp = await api.get("/api/emergency/");
       const emergenciesData = resp.data;
-
-      // Convert emergencies list to location-based status
       const newStatus = {};
       locations.forEach((loc) => {
         const found = emergenciesData.find((e) => e.location === loc);
         newStatus[loc] = found ? found.status : "Safe";
       });
-
       setStatus(newStatus);
-
-      // Announce changes
       locations.forEach((loc) => {
         const prev = prevStatusRef.current[loc];
         const curr = newStatus[loc];
@@ -44,10 +43,9 @@ export default function Emergency() {
     }
   };
 
-  // Fetch emergency list
   const fetchEmergencies = async () => {
     try {
-      const resp = await api.get("/api/emergency/"); // updated URL
+      const resp = await api.get("/api/emergency/");
       setEmergencies(resp.data);
     } catch (err) {
       console.error("Failed to fetch emergencies", err);
@@ -72,18 +70,17 @@ export default function Emergency() {
   const handleEmergencySelect = async (type) => {
     setSosLoading(true);
     setShowModal(false);
-
     const sendSOS = async (lat, lon) => {
       const data = {
         user_id: `devotee_${Date.now()}`,
         latitude: lat,
         longitude: lon,
         emergency_type: type,
-        location: locations[0], // or get dynamically
+        location: locations[0],
         status: "Alert",
       };
       try {
-        const resp = await api.post("/api/emergency/", data); // updated URL
+        const resp = await api.post("/api/emergency/", data);
         setAlertSent(true);
         setMyAlertId(resp.data.id);
         setEmergencies((prev) => [resp.data, ...prev]);
@@ -93,7 +90,6 @@ export default function Emergency() {
         setSosLoading(false);
       }
     };
-
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => sendSOS(pos.coords.latitude, pos.coords.longitude),
@@ -102,7 +98,6 @@ export default function Emergency() {
     } else sendSOS(20.913, 70.363);
   };
 
-  // 🔊 Audio + Speech
   const audioRefs = {
     Safe: new Audio("/sounds/safe.mp3"),
     Alert: new Audio("/sounds/warning.mp3"),
@@ -124,55 +119,56 @@ export default function Emergency() {
     }
   };
 
-  const statusColors = {
-    Safe: "#d9f7be",
-    Alert: "#fff566",
-    Critical: "#ff7875",
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "Alert": return "status-alert";
+      case "Critical": return "status-critical";
+      default: return "status-safe";
+    }
   };
 
   const myAlert = emergencies.find((e) => e.id === myAlertId);
 
-  return (
-    <div style={{ padding: "30px" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "30px" }}>🚨 Emergency Management</h2>
+  // --- END OF LOGIC FUNCTIONS ---
 
-      {/* SOS Button */}
-      <div style={styles.sosCard}>
+  return (
+    <div className="emergency-page">
+      <h1 className="dashboard-title">🚨 Emergency Management</h1>
+
+      <div className="sos-card">
         <h3>Need Help?</h3>
         <p>Press SOS to send an emergency alert with your location.</p>
-        <button style={styles.sosButton} onClick={handleSosClick} disabled={sosLoading}>
-          {sosLoading ? "Sending..." : "SOS"}
+        <button className="sos-button" onClick={handleSosClick} disabled={sosLoading}>
+          {sosLoading ? "..." : "SOS"}
         </button>
         {alertSent && myAlert && (
-          <div style={styles.successMsg}>
+          <div className="success-message">
             Help is on the way for <b>{myAlert.emergency_type}</b>!<br />
             <small>Status: {myAlert.status}</small>
           </div>
         )}
-        {error && <div style={styles.errorMsg}>{error}</div>}
+        {error && <div className="error-message">{error}</div>}
       </div>
 
-      {/* Modal */}
       {showModal && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modalBox}>
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h4>Select Emergency Type</h4>
-            <div style={styles.options}>
+            <div className="modal-options">
               {["Medical", "Lost Child", "Security"].map((type) => (
-                <button key={type} style={styles.optionBtn} onClick={() => handleEmergencySelect(type)}>
+                <button key={type} className="modal-option-btn" onClick={() => handleEmergencySelect(type)}>
                   {type}
                 </button>
               ))}
             </div>
-            <button style={styles.cancelBtn} onClick={() => setShowModal(false)}>
+            <button className="modal-cancel-btn" onClick={() => setShowModal(false)}>
               Cancel
             </button>
           </div>
         </div>
       )}
 
-      {/* Admin Table */}
-      <table style={styles.table}>
+      <table className="status-table">
         <thead>
           <tr>
             <th>Location</th>
@@ -183,7 +179,7 @@ export default function Emergency() {
           {locations.map((loc) => (
             <tr key={loc}>
               <td>{loc}</td>
-              <td style={{ backgroundColor: statusColors[status[loc]] || "#d9f7be" }}>
+              <td className={`status-cell ${getStatusClass(status[loc])}`}>
                 {status[loc] || "Safe"}
               </td>
             </tr>
@@ -193,16 +189,3 @@ export default function Emergency() {
     </div>
   );
 }
-
-const styles = {
-  sosCard: { background: "#fff", borderRadius: "10px", padding: "25px", textAlign: "center", boxShadow: "0 5px 15px rgba(0,0,0,0.1)", marginBottom: "40px" },
-  sosButton: { background: "#e74c3c", color: "#fff", border: "none", borderRadius: "50%", width: "130px", height: "130px", fontSize: "2rem", cursor: "pointer", margin: "20px auto", display: "block" },
-  successMsg: { backgroundColor: "#d4edda", padding: "10px", borderRadius: "8px", color: "#155724" },
-  errorMsg: { backgroundColor: "#f8d7da", padding: "10px", borderRadius: "8px", color: "#721c24" },
-  modalOverlay: { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 },
-  modalBox: { background: "#fff", padding: "25px", borderRadius: "10px", width: "350px", textAlign: "center" },
-  options: { display: "flex", flexDirection: "column", gap: "10px", margin: "15px 0" },
-  optionBtn: { padding: "10px", border: "1px solid #ddd", background: "#f5f5f5", cursor: "pointer" },
-  cancelBtn: { padding: "8px 15px", border: "none", background: "#ccc", borderRadius: "5px", cursor: "pointer" },
-  table: { width: "100%", borderCollapse: "collapse", background: "#fff", borderRadius: "10px", overflow: "hidden" },
-};
