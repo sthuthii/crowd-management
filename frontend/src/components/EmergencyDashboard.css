@@ -1,0 +1,57 @@
+.admin-dashboard-card {
+  background-color: var(--card-background, #fff);
+  border-radius: var(--border-radius, 12px);
+  box-shadow: var(--box-shadow, 0 4px 12px rgba(0,0,0,0.08));
+  overflow: hidden;
+}
+
+.admin-dashboard-header {
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eef0f3;
+}
+.admin-dashboard-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.alert-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.alert-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #eef0f3;
+}
+.alert-item:last-child {
+  border-bottom: none;
+}
+
+.alert-info small {
+  color: var(--text-secondary);
+}
+
+.alert-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  background-color: #ffc107; 
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+
+.btn-group { display: flex; gap: 0.5rem; }
+.btn-sm { font-size: 0.85rem; padding: 6px 12px; }
