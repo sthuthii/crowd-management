@@ -1,0 +1,173 @@
+:root {
+  /* A more vibrant and professional color palette */
+  --primary-blue: #2B6CB0;   /* A deeper, more professional blue */
+  --accent-saffron: #F6AD55; /* A warm, energetic saffron/gold */
+  --bg-color: #F7FAFC;       /* A clean, light gray background */
+  --card-bg-color: #ffffff;
+  --text-color: #1A202C;
+  --subtle-text-color: #718096;
+  --border-color: #E2E8F0;
+  --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-container {
+  padding: 1.5rem;
+  background-color: var(--bg-color);
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* --- Refined Grid Layout for Perfect Alignment --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Single column on mobile */
+  gap: 1.5rem;
+}
+
+.dashboard-card {
+  background-color: var(--card-bg-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid var(--border-color);
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-card .card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--subtle-text-color);
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+}
+
+/* --- Stat Card Styles --- */
+/* This highly specific selector ensures stat cards perfectly match the dashboard theme */
+.dashboard-grid > .dashboard-card.stat-card {
+  /* Explicitly set all properties to match the .dashboard-card style */
+  background-color: var(--card-bg-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+  
+  /* Add the only unique style it needs */
+  text-align: center;
+}
+
+.dashboard-card .stat-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+}
+
+.dashboard-card .stat-label {
+  font-size: 0.9rem;
+  color: var(--subtle-text-color);
+  margin-top: 0.25rem;
+}
+
+/* --- Modern Table Styles with Accent Color --- */
+.table-container {
+  overflow-x: auto;
+}
+
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.modern-table th, .modern-table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.modern-table th {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  background-color: var(--card-bg-color);
+  color: var(--primary-blue);
+  border-bottom: 2px solid var(--accent-saffron); /* Using saffron for the underline */
+}
+
+.modern-table tbody tr:hover {
+  background-color: #F7FAFC; /* Subtle hover effect for table rows */
+}
+
+.modern-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* --- Chart Container --- */
+.chart-container {
+  min-height: 250px;
+}
+
+/* --- Responsive Grid Adjustments for Tablet and Desktop --- */
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns for stat cards on tablets */
+  }
+
+  /* Make larger cards span the full width on tablets */
+  .col-span-2, .col-span-3 {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* More complex layout for large desktops */
+  .col-span-2 {
+    grid-column: span 2;
+  }
+  .col-span-3 {
+    grid-column: span 3;
+  }
+}
+
+/* --- High Contrast Mode Adjustments for Dashboard (with increased specificity) --- */
+.high-contrast .dashboard-container {
+  background-color: #000;
+}
+
+.high-contrast .dashboard-card,
+.high-contrast .dashboard-grid > .dashboard-card.stat-card {
+  background-color: #111;
+  border-color: #555;
+  color: #f0f0f0; /* Default text color for everything inside the card */
+}
+
+.high-contrast .dashboard-title,
+.high-contrast .dashboard-card .card-title,
+.high-contrast .dashboard-card .stat-label {
+  color: #f0f0f0; /* An off-white for readability */
+}
+
+.high-contrast .dashboard-card .stat-value,
+.high-contrast .modern-table th {
+  color: var(--accent-saffron); /* Use the vibrant accent color for key info */
+}
+
+.high-contrast .modern-table th,
+.high-contrast .modern-table td {
+  border-color: #444;
+}
+
+.high-contrast .modern-table tbody tr:hover {
+  background-color: #222;
+}
+
