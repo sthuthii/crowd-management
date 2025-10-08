@@ -1,0 +1,149 @@
+/* --- Root Variables for the new Sacred Blue & Saffron Theme --- */
+:root {
+  --sacred-blue: #0A2463;
+  --saffron: #FF9933;
+  --dark-text: #212529;
+  --light-text: #FFFFFF;
+  --gray-border: #dee2e6;
+  --light-gray-bg: #f8f9fa;
+  --danger-red: #dc3545;      /* Keeping red for "lost" status as it's universal */
+  --neutral-gray: #6c757d;   /* For "returned" status */
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --border-radius: 0.5rem;
+}
+
+/* --- Main Card Container --- */
+.card {
+  /* --- ADD THESE TWO LINES --- */
+  max-width: 1200px;   /* Or another value like 90% */
+  margin: 2rem auto;  /* Centers the card on the page */
+
+  /* ... your existing styles (border, box-shadow, etc.) ... */
+  border: 1px solid var(--gray-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden; 
+}
+
+/* --- Card Header with Sacred Blue background --- */
+.card-header {
+  background-color: var(--sacred-blue);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--sacred-blue);
+}
+
+.card-header h3 {
+  color: var(--light-text); /* Light text on dark background */
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+.card-body h4 {
+  color: var(--sacred-blue); /* Section titles in Sacred Blue */
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+/* --- Form Styling with Saffron Accents --- */
+.form-control,
+.form-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gray-border);
+  border-radius: 0.375rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--saffron); /* Saffron glow on focus */
+  box-shadow: 0 0 0 3px rgba(255, 153, 51, 0.3);
+  outline: none;
+}
+
+/* --- Buttons with Saffron as the primary action color --- */
+.btn-primary {
+  background-color: var(--saffron);
+  border-color: var(--saffron);
+  color: var(--dark-text); /* Dark text on the bright saffron button */
+  padding: 0.75rem;
+  font-weight: 700;
+  border-radius: 0.375rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #e68a2e; /* A darker saffron for hover */
+  border-color: #e68a2e;
+}
+
+/* --- Reported Items List Styling --- */
+.list-group-item {
+  padding: 1rem 1.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.list-group-item:hover {
+  background-color: #fffbeb; /* A very light saffron-tinted background */
+}
+
+.list-group-item strong {
+  font-size: 1.1rem;
+  color: var(--dark-text);
+}
+
+/* --- Badge Styling with Thematic Colors --- */
+.badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4em 0.7em;
+  color: var(--light-text);
+}
+
+.badge.bg-danger {
+  background-color: var(--danger-red) !important; 
+}
+.badge.bg-success { /* "found" status will now use Saffron */
+  background-color: var(--saffron) !important;
+  color: var(--dark-text) !important;
+}
+.badge.bg-info { /* "returned" status will use a neutral gray */
+  background-color: var(--neutral-gray) !important;
+}
+
+/* --- Action buttons in the list --- */
+.list-group-item .btn-group {
+  gap: 0.5rem;
+}
+
+.list-group-item .btn.btn-success { /* "Found" button */
+  background-color: var(--saffron);
+  border-color: var(--saffron);
+  color: var(--dark-text);
+}
+
+.list-group-item .btn.btn-info { /* "Returned" button */
+  background-color: var(--sacred-blue);
+  border-color: var(--sacred-blue);
+  color: var(--light-text);
+}
+
+/* --- Responsive Design (remains the same) --- */
+@media (max-width: 768px) {
+  .card-body .row {
+    flex-direction: column;
+  }
+
+  .col-md-5, .col-md-7 {
+    width: 100%;
+  }
+  
+  .col-md-5 {
+    margin-bottom: 2.5rem; 
+  }
+}
