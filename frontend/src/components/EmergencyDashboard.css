@@ -1,5 +1,3 @@
-/* src/components/EmergencyDashboard.css */
-
 .admin-dashboard-card {
   background-color: var(--card-background, #fff);
   border-radius: var(--border-radius, 12px);
@@ -49,11 +47,11 @@
   border-radius: 999px;
   font-weight: 600;
   font-size: 0.8rem;
-  background-color: #ffc107; /* Yellow */
+  background-color: #ffc107; 
   color: var(--text-primary);
   text-transform: uppercase;
 }
 
-/* Reusing button styles */
+
 .btn-group { display: flex; gap: 0.5rem; }
 .btn-sm { font-size: 0.85rem; padding: 6px 12px; }

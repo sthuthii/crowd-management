@@ -1,17 +1,13 @@
-// src/components/EmergencyDashboard.jsx - (Custom CSS Version)
 
 import React, { useState, useEffect } from 'react';
 import { getActiveEmergencies, updateEmergency } from '../services/api';
-import './EmergencyDashboard.css'; // Import new CSS
+import './EmergencyDashboard.css'; 
 
 const EmergencyDashboard = () => {
     const [emergencies, setEmergencies] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Your useEffect and handleUpdateStatus logic remains exactly the same
     
-    // [ The logic for useEffect and handleUpdateStatus is omitted for brevity, but it should be kept in your file exactly as it was. ]
-
     return (
         <div className="admin-dashboard-card">
             <div className="admin-dashboard-header">

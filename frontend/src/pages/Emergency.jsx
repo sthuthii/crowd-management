@@ -1,8 +1,6 @@
-// src/pages/Emergency.jsx - (Complete and Corrected Version)
-
 import React, { useState, useEffect, useRef } from "react";
 import api from "../services/api";
-import './Emergency.css'; // Import the custom CSS
+import './Emergency.css'; 
 
 const locations = ["Main Hall", "Temple Gate", "Cafeteria", "Parking Lot"];
 
@@ -17,7 +15,7 @@ export default function Emergency() {
   const prevStatusRef = useRef({});
   const alertRef = useRef(false);
 
-  // --- START OF LOGIC FUNCTIONS ---
+  
 
   const fetchStatus = async () => {
     try {
@@ -129,7 +127,7 @@ export default function Emergency() {
 
   const myAlert = emergencies.find((e) => e.id === myAlertId);
 
-  // --- END OF LOGIC FUNCTIONS ---
+  
 
   return (
     <div className="emergency-page">

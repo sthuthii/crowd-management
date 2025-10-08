@@ -1,12 +1,10 @@
-/* src/pages/Emergency.css */
-
 .emergency-page {
   padding: 2rem;
   max-width: 900px;
   margin: 0 auto;
 }
 
-/* --- SOS Card --- */
+
 .sos-card {
   background-color: var(--card-background, #fff);
   border-radius: var(--border-radius, 12px);
@@ -27,7 +25,6 @@
   margin-bottom: 1.5rem;
 }
 
-/* Reusing the pulsing animation for the SOS button */
 @keyframes pulse {
   0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217, 48, 37, 0.7); }
   70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(217, 48, 37, 0); }
@@ -68,7 +65,7 @@
 .success-message { background-color: #d4edda; color: #155724; }
 .error-message { background-color: #f8d7da; color: #721c24; }
 
-/* --- Modal Styling --- */
+
 .modal-overlay {
   position: fixed;
   top: 0; left: 0;
@@ -110,7 +107,7 @@
   cursor: pointer;
 }
 
-/* --- Status Table Styling (reusing from queue) --- */
+
 .status-table {
   width: 100%;
   border-collapse: collapse;
