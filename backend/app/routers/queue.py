@@ -1,14 +1,29 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import uuid
-from datetime import datetime, timedelta
 from app.database.db import get_db
-from app.database import models
-from ..database import schemas, db, models
-from ..dependencies import get_current_user
+from app.database import schemas
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["Queue Management"])
 
+# 🧠 Temporary in-memory storage for demo purposes
+fake_passes = [
+    {
+        "id": 1,
+        "queue_number": "Q001",
+        "issued_time": "2025-10-09T18:30:00",
+        "user_name": "Sthuthi",
+        "status": "active"
+    },
+    {
+        "id": 2,
+        "queue_number": "Q002",
+        "issued_time": "2025-10-09T18:45:00",
+        "user_name": "Sathwik",
+        "status": "waiting"
+    }
+]
+
+# ✅ Add this missing route
 @router.get("/queues")
 def get_live_queues():
     return [
@@ -16,44 +31,35 @@ def get_live_queues():
         {"id": "q_vip", "name": "VIP Pass Holders", "wait_time_minutes": 15, "status": "Low"},
     ]
 
+# ✅ Create new digital pass (hardcoded for testing)
 @router.post("/passes", response_model=schemas.DigitalPass)
-def book_darshan_pass(pass_data: schemas.PassCreate, db: Session = Depends(db.get_db), current_user: models.User = Depends(get_current_user)):
-    existing_pass = db.query(models.DigitalPass).filter(models.DigitalPass.user_id == current_user.id).first()
-    if existing_pass:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already has an active pass.")
-
-    queue_map = {"q_general": "General Darshan", "q_vip": "VIP Pass Holders"}
-    queue_name = queue_map.get(pass_data.queue_id, "Unknown Queue")
-
-    pass_id = f"pass_{uuid.uuid4().hex[:8]}"
-    qr_code_url = f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={pass_id}"
-
-    db_pass = models.DigitalPass(
-        pass_id=pass_id, user_id=current_user.id, queue_name=queue_name,
-        assigned_slot=datetime.utcnow() + timedelta(hours=2), qr_code_url=qr_code_url,
-        owner=current_user
+def create_pass(db: Session = Depends(get_db)):
+    new_pass = schemas.DigitalPass(
+        id=len(fake_passes) + 1,
+        queue_number=f"Q00{len(fake_passes) + 1}",
+        issued_time="2025-10-09T19:00:00",
+        user_name="TestUser",
+        status="active"
     )
-    db.add(db_pass)
-    db.commit()
-    db.refresh(db_pass)
-    return db_pass
-@router.get("/passes/previous", response_model=schemas.DigitalPass)
-def get_previous_pass(
-    db: Session = Depends(db.get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-    existing_pass = db.query(models.DigitalPass).filter(
-        models.DigitalPass.user_id == current_user.id
-    ).order_by(models.DigitalPass.id.desc()).first()
+    fake_passes.append(new_pass.dict())
+    return new_pass
 
-    if not existing_pass:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No previous pass found.")
+# ✅ Get all passes (hardcoded)
+@router.get("/passes", response_model=list[schemas.DigitalPass])
+def get_passes(db: Session = Depends(get_db)):
+    return fake_passes
 
-    return existing_pass
-# Get currently booked pass for the logged-in user
-@router.get("/passes/me", response_model=schemas.DigitalPass)
-def get_my_pass(db: Session = Depends(db.get_db), current_user: models.User = Depends(get_current_user)):
-    user_pass = db.query(models.DigitalPass).filter(models.DigitalPass.user_id == current_user.id).first()
-    if not user_pass:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active pass found")
-    return user_pass
+# ✅ Get a specific pass by ID
+@router.get("/passes/{pass_id}", response_model=schemas.DigitalPass)
+def get_pass(pass_id: int, db: Session = Depends(get_db)):
+    for p in fake_passes:
+        if p["id"] == pass_id:
+            return p
+    raise HTTPException(status_code=404, detail="Pass not found")
+
+# ✅ Delete a pass (for testing)
+@router.delete("/passes/{pass_id}", response_model=dict)
+def delete_pass(pass_id: int, db: Session = Depends(get_db)):
+    global fake_passes
+    fake_passes = [p for p in fake_passes if p["id"] != pass_id]
+    return {"message": f"Pass {pass_id} deleted successfully"}

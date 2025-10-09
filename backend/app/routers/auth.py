@@ -11,6 +11,7 @@ router = APIRouter(prefix="/api", tags=["Authentication"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 # =========================================
 # 🔹 User Registration Endpoint
 # =========================================
@@ -24,9 +25,17 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(db.get_db)):
             detail="Username already registered"
         )
 
+    # Optional: store email if sent from frontend
+    email_value = getattr(user, "email", None)
+
     # Hash password and create user
     hashed_password = security.get_password_hash(user.password)
-    new_user = models.User(username=user.username, hashed_password=hashed_password)
+    new_user = models.User(
+        username=user.username,
+        email=email_value,
+        hashed_password=hashed_password
+    )
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -37,8 +46,11 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(db.get_db)):
 # 🔹 Login & Token Generation Endpoint
 # =========================================
 @router.post("/token", response_model=schemas.Token)
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(db.get_db)):
-    # Find user
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(db.get_db)
+):
+    # Find user by username
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
 
     # Validate user and password

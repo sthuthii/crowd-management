@@ -32,12 +32,14 @@ class PassCreate(BaseModel):
     queue_id: str
     number_of_people: int
 
+
 class DigitalPass(BaseModel):
-    pass_id: str
-    queue_name: str
-    assigned_slot: datetime
-    qr_code_url: str
-    owner: User
+    id: int
+    queue_number: str
+    issued_time: str
+    user_name: str
+    status: str
+
     class Config:
         from_attributes = True
 

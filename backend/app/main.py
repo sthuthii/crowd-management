@@ -71,7 +71,7 @@ app.include_router(priority.router)
 app.include_router(accessibility.router, prefix='/accessibility')
 app.include_router(crowd_prediction.router)
 app.include_router(traffic.router)
-app.include_router(queue.router, prefix='/queue')
+app.include_router(queue.router)
 
 # Health Check
 
