@@ -20,12 +20,16 @@ import Accessibility from "./pages/Accessibility";
 import Emergency from "./pages/Emergency";
 import LostAndFound from "./pages/LostAndFound";
 import Admin from "./pages/Admin";
-import LoginPage from "./pages/LoginPage";
+import Login from "./pages/Login";
 import EvacuationPage from "./pages/EvacuationPage";
 import QueueDashboard from "./components/QueueDashboard";
+import Register from "./pages/Register";
 
 // TTS
 import { speak as ttsSpeak } from "./services/tts";
+import QueueListPage from "./pages/QueueListPage";
+import BookPassPage from "./pages/BookPassPage";
+import MyPassPage from "./pages/MyPassPage";
 
 function App() {
   const [textSize, setTextSize] = useState(16);
@@ -60,6 +64,8 @@ function App() {
         <Routes>
           {/* --- Main Pages --- */}
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/prediction" element={<Prediction />} />
           <Route path="/traffic" element={<Traffic />} />
@@ -73,8 +79,7 @@ function App() {
           }/>
           <Route path="/emergency" element={<Emergency />} />
           <Route path="/lost-and-found" element={<LostAndFound />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/evacuation" element={<EvacuationPage />} />
+           <Route path="/evacuation" element={<EvacuationPage />} />
           <Route
             path="/admin"
             element={
@@ -85,7 +90,9 @@ function App() {
           />
 
           {/* --- Queue Ticketing Feature --- */}
-          <Route path="/queue" element={<QueueDashboard language="en-US" />} />
+          <Route path="/queue" element={<QueueListPage language="en-US" />} />
+          <Route path="/pass-list" element={<BookPassPage language="en-US" />} />
+          <Route path="/mypass" element={<MyPassPage language="en-US" />} />
 
           {/* --- Fallback --- */}
           <Route path="*" element={<h1>404 - Page Not Found</h1>} />

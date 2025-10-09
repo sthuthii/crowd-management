@@ -32,9 +32,9 @@ export const createUser = (userData) => api.post("/users/", userData);
 // ==============================
 // QUEUE & TICKETING
 // ==============================
-export const getQueues = () => api.get("/api/queues");
-export const bookPass = (passData) => api.post("/api/passes", passData);
-export const getMyPass = () => api.get("/api/passes/me");
+export const getQueues = () => api.get("/queues");
+export const bookPass = (passData) => api.post("api/passes", passData);
+export const getMyPass = () => api.get("api/passes/me");
 
 // ==============================
 // EMERGENCY SERVICES

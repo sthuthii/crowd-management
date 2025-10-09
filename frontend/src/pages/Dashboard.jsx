@@ -11,7 +11,7 @@ export default function Dashboard() {
 
   const fetchQueue = async () => {
     try {
-      const resp = await fetch("http://127.0.0.1:8000/queue");
+      const resp = await fetch("/queue");
       if (!resp.ok) throw new Error("Failed to fetch queue data");
       const data = await resp.json();
       setQueueData(data);
